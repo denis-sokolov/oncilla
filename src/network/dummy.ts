@@ -24,7 +24,7 @@ export function makeDummyAdapter<Domain>(
             kind,
             id,
             revision: "dummy",
-            value: id in data ? data[kind][id] : onMissing(kind, id)
+            value: id in data[kind] ? data[kind][id] : onMissing(kind, id)
           });
         }, 1500);
         return () => {};
