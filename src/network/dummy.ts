@@ -14,6 +14,13 @@ export function makeDummyAdapter<Domain>(
     onMissing?: OnMissing<Domain>;
   } = {}
 ): NetworkAdapter<Domain> {
+  // Clone data one level deep
+  const _ = data;
+  data = {} as any;
+  Object.keys(_).forEach(k => {
+    (data as any)[k] = { ...(_ as any)[k] };
+  });
+
   const onMissing = opts.onMissing || defaultOnMissing;
   let locked = false;
   return function({ onChange, onConnectivityChange, onPushResult }) {
@@ -37,6 +44,7 @@ export function makeDummyAdapter<Domain>(
         }
         locked = true;
         setTimeout(() => {
+          data[kind][id] = value;
           onChange({ kind, id, revision: "dummy", value });
           onPushResult(pushId, "success");
           locked = false;
