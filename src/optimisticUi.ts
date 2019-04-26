@@ -61,7 +61,10 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
     withPendingTransactions: function(data: Data<Domain>): Data<Domain> {
       if (!optimisticUIEnabled()) return data;
 
-      const result = { ...data };
+      const result: any = {};
+      Object.keys(data).forEach(k => {
+        result[k] = { ...(data as any)[k] };
+      });
 
       // Apply pending transactions on top of the canon version
       pendingTransactions.forEach(function(transaction) {
