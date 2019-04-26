@@ -15,6 +15,7 @@ export function makeDummyAdapter<Domain>(
   } = {}
 ): NetworkAdapter<Domain> {
   const onMissing = opts.onMissing || defaultOnMissing;
+  let locked = false;
   return function({ onChange, onConnectivityChange, onPushResult }) {
     setTimeout(() => onConnectivityChange("online"), 1000);
     return {
@@ -30,9 +31,15 @@ export function makeDummyAdapter<Domain>(
         return () => {};
       },
       push: ({ kind, id, pushId, value }) => {
+        if (locked) {
+          setTimeout(() => onPushResult(pushId, "conflict"), 500);
+          return;
+        }
+        locked = true;
         setTimeout(() => {
           onChange({ kind, id, revision: "dummy", value });
           onPushResult(pushId, "success");
+          locked = false;
         }, 2000);
       }
     };
