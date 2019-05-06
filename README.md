@@ -1,4 +1,4 @@
-# ![Oncilla logo](docs/images/logo/combined.400.png)
+# ![Oncilla logo](docs/images/logo/combined.png)
 
 Client-side database for real-time and optimistic UI.
 
