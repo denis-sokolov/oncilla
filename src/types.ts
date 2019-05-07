@@ -5,6 +5,7 @@ import { Connectivity, NetworkAdapter } from "./network";
 export type CreateParams<Domain> = {
   network: NetworkAdapter<Domain>;
   onError?: (error: Error) => void;
+  window?: Window;
 };
 
 export type Data<Domain> = {
