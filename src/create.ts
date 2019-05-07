@@ -3,10 +3,13 @@ import { optimisticUi } from "./optimisticUi";
 import { sync } from "./sync";
 import { CreateParams, Data, DebugConfig, Events, FullDB } from "./types";
 
+const globalWindow = typeof window === "undefined" ? ({} as Window) : window;
+
 export function create<Domain>(
   params: CreateParams<Domain> & { initialData: Data<Domain> }
 ): FullDB<Domain> {
   const { initialData, network, onError } = params;
+  const window = params.window || globalWindow;
 
   const debugConfig: DebugConfig = {
     failingWrites: false,
