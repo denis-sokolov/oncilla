@@ -10,6 +10,6 @@ At the top there is the user’s application. A React app is the primary support
 
 Next level is the Oncilla UI adapter layer. All code specific to a particular UI library belongs here. For oncilla-react, this is code that supports the React hooks that re-rendering a user’s component when new data is available and provide updater functions.
 
-The lever below that is Oncilla core. All code that is the core value benefit of Oncilla belongs here. Because the world around Oncilla core is so malleable, we want to pull as much of our concern into the core as possible.
+The level below that is the Oncilla core. All code that is the core value benefit of Oncilla belongs here. Because the world around Oncilla core is so malleable, we want to pull as much of our concern into the core as possible.
 
 At the bottom there is the network layer. The current implementation is a custom protocol over WebSockets, but one could see an implementation for CouchDB being made, or a custom implementation for a custom REST API.
