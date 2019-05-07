@@ -6,7 +6,7 @@ Internal contributors, please see [our board](https://trello.com/b/3Gz6QFfo/onci
 
 The component diagram on the left gives an overview what parts there are to Oncilla and allows to work on one part without being overwhelmed by everything else.
 
-At the top there is the user’s application. A React app is primary supported case today. On the bottom there is the user’s server. Data updates move from bottom to top, and the data modification requests move from top to bottom.
+At the top there is the user’s application. A React app is the primary supported case today. On the bottom there is the user’s server. Data updates move from bottom to top, and the data modification requests move from top to bottom.
 
 Next level is the Oncilla UI adapter layer. All code specific to a particular UI library belongs here. For oncilla-react, this is code that supports the React hooks that re-rendering a user’s component when new data is available and provide updater functions.
 
