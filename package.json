@@ -7,11 +7,12 @@
     "ci": "npm run verify",
     "format": "prettier --write '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
     "format-verify": "prettier --check '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
+    "lint": "tslint --project .",
     "prepublishOnly": "npm run verify && npm run build",
     "start": "ava --watch",
     "test": "ava",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run format-verify && npm run test"
+    "verify": "npm run typecheck && npm run format-verify && npm run lint && npm run test"
   },
   "dependencies": {
     "ava": "^1.4.1",
@@ -29,6 +30,8 @@
     "@types/ws": "^6.0.1",
     "prettier": "^1.17.0",
     "react": "^16.8.6",
+    "tslint": "^5.16.0",
+    "tslint-no-circular-imports": "^0.6.2",
     "typescript": "^3.3.4000"
   },
   "browser": "dist/index.js",
