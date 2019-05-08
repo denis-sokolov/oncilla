@@ -1,4 +1,5 @@
-import { DebugConfig, FullDB, ReactType } from "./types";
+import { DebugConfig, FullDB } from "../../types";
+import { ReactType } from "./types";
 
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
 export interface Updater<T> extends UpdaterInternal<T> {

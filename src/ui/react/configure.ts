@@ -1,8 +1,9 @@
-import { create } from "./create";
+import { create } from "../../create";
 import { createContext } from "./context";
 import { makeHooks } from "./hooks";
 import { makeSemiControlledInput } from "./inputs";
-import { CreateParams, Data, ReactType } from "./types";
+import { CreateParams, Data } from "../../types";
+import { ReactType } from "./types";
 
 type Configuration<Domain> = {
   data: Data<Domain>;

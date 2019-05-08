@@ -1,4 +1,4 @@
-import { Data, Delta } from "./types";
+import { Data, Delta } from "../types";
 
 type Params<Domain> = {
   commitTransaction: <K extends keyof Domain>(

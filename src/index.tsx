@@ -1,4 +1,4 @@
-export { configure } from "./configure";
+export { configure } from "./ui";
 export {
   makeDummyAdapter,
   makeWsProtocolAdapter,

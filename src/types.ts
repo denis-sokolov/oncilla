@@ -1,4 +1,3 @@
-import React from "react";
 import NanoEvents from "nanoevents";
 import { Connectivity, NetworkAdapter } from "./network";
 
@@ -47,5 +46,3 @@ export type FullDB<Domain> = {
     delta: Delta<Domain, K>
   ) => void;
 };
-
-export type ReactType = typeof React;

@@ -2,7 +2,7 @@ import test from "ava";
 import React from "react";
 
 import { configure } from "./configure";
-import { NetworkAdapter } from "./network";
+import { NetworkAdapter } from "../../network";
 
 function makeReactStub() {
   let contextValue = "missing-provider";
