@@ -1,7 +1,6 @@
 import NanoEvents from "nanoevents";
-import { optimisticUi } from "./core/optimisticUi";
-import { sync } from "./core/sync";
-import { CreateParams, Data, DebugConfig, Events, FullDB } from "./types";
+import { optimisticUi, sync, Data, DebugConfig, Events } from "./core";
+import { CreateParams, FullDB } from "./types";
 
 const globalWindow = typeof window === "undefined" ? ({} as Window) : window;
 

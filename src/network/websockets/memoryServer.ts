@@ -1,6 +1,6 @@
 import NanoEvents from "nanoevents";
 import WebSocket from "ws";
-import { Data } from "../../types";
+import { Data } from "../../core";
 
 export function runMemoryServer(params: { data: Data<any>; port: number }) {
   const { data, port } = params;

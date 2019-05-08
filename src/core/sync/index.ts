@@ -1,5 +1,5 @@
-import { Connectivity, NetworkAdapter, PushResult } from "../../network";
-import { Data } from "../../types";
+import { Connectivity, NetworkAdapter, PushResult } from "../../network/types";
+import { Data } from "../types";
 
 function makeCounters() {
   const stringify = (a: string, b: string) => `${a}-${b}`;

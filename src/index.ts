@@ -1,4 +1,5 @@
 export { configure } from "./ui";
+export { Data, DebugConfig, Delta, Events } from "./core";
 export {
   makeDummyAdapter,
   makeWsProtocolAdapter,
@@ -6,11 +7,4 @@ export {
   Connectivity,
   NetworkAdapter
 } from "./network";
-export {
-  CreateParams,
-  Data,
-  DebugConfig,
-  Delta,
-  Events,
-  FullDB
-} from "./types";
+export { CreateParams, FullDB } from "./types";
