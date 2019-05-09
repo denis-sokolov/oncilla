@@ -1,8 +1,10 @@
-import { create } from "./create";
+import { create } from "../../create";
+import { Data } from "../../core";
 import { createContext } from "./context";
 import { makeHooks } from "./hooks";
 import { makeSemiControlledInput } from "./inputs";
-import { CreateParams, Data, ReactType } from "./types";
+import { CreateParams } from "../../types";
+import { ReactType } from "./types";
 
 type Configuration<Domain> = {
   data: Data<Domain>;

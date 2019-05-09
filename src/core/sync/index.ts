@@ -1,4 +1,4 @@
-import { Connectivity, NetworkAdapter, PushResult } from "../network";
+import { Connectivity, NetworkAdapter, PushResult } from "../../network/types";
 import { Data } from "../types";
 
 function makeCounters() {
