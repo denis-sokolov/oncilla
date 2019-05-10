@@ -4,7 +4,12 @@ import { runWebsocketServer } from "./server";
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
-export function runMemoryServer(params: { data: Data<any>; port: number }) {
+type Params = {
+  data: Data<any>;
+  port: number;
+};
+
+export function runMemoryServer(params: Params) {
   const { data, port } = params;
 
   function getItem(kind: string, id: string) {
