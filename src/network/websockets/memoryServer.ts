@@ -1,3 +1,5 @@
+import { Server as HttpServer } from "http";
+
 import { Data } from "../../core";
 
 import { runWebsocketServer } from "./server";
@@ -6,11 +8,12 @@ const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Params = {
   data: Data<any>;
-  port: number;
-};
+} & (
+  | { port: number; server?: undefined }
+  | { port?: undefined; server: HttpServer });
 
 export function runMemoryServer(params: Params) {
-  const { data, port } = params;
+  const { data, port, server } = params;
 
   function getItem(kind: string, id: string) {
     const item = data[kind][id];
@@ -30,6 +33,7 @@ export function runMemoryServer(params: Params) {
     onRequestData: function({ kind, id, send }) {
       send(getItem(kind, id));
     },
-    port
+    port: port as any,
+    server: server as any
   });
 }
