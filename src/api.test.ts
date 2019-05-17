@@ -1,11 +1,8 @@
 import test from "ava";
 
-import {
-  configure,
-  makeDummyAdapter,
-  makeWsProtocolAdapter,
-  runMemoryServer
-} from ".";
+import { makeDummyAdapter, makeWsProtocolAdapter } from ".";
+import { configure } from "./react";
+import { runMemoryServer } from "./server";
 
 test("react is exposed", t => {
   t.is(typeof configure, "function");
