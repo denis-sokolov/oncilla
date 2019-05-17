@@ -1,5 +1,4 @@
-import { DebugConfig } from "../../core";
-import { FullDB } from "../../types";
+import { DebugConfig, FullDB } from "../../core";
 import { ReactType } from "./types";
 
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
