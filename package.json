@@ -39,6 +39,9 @@
     "node": ">=8.9.0",
     "npm": ">=6.6"
   },
+  "files": [
+    "dist/**/*"
+  ],
   "license": "ISC",
   "main": "dist/index.js",
   "repository": "git@github.com:citrusbyte/oncilla.git",
