@@ -12,3 +12,20 @@ const network = makeWsProtocolAdapter({
   url: "wss://example.com/"
 });
 ```
+
+For development convenience you can run an in-memory WebSocket server running on Node.js:
+
+```js
+import { runMemoryServer } from "oncilla/dist/server";
+
+export function attachWebSockets(server: HttpServer) {
+  runMemoryServer({
+    initialData: {
+      tasks: {
+        [taskId1]: { title: "Buy milk" }
+      }
+    },
+    port: 8090
+  });
+}
+```

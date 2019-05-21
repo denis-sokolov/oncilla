@@ -1,4 +1,4 @@
-import { FullDB } from "../../types";
+import { FullDB } from "../../core";
 import { ReactType } from "./types";
 
 type Params = {

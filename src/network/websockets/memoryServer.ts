@@ -7,13 +7,21 @@ import { runWebsocketServer } from "./server";
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Params = {
-  data: Data<any>;
+  initialData: { [kind: string]: { [id: string]: unknown } };
 } & (
   | { port: number; server?: undefined }
   | { port?: undefined; server: HttpServer });
 
 export function runMemoryServer(params: Params) {
-  const { data, port, server } = params;
+  const { initialData, port, server } = params;
+
+  const data: Data<any> = {};
+  Object.keys(initialData).forEach(kind => {
+    data[kind] = {};
+    Object.keys(initialData[kind]).forEach(id => {
+      data[kind][id] = { revision: "1", value: initialData[kind][id] };
+    });
+  });
 
   function getItem(kind: string, id: string) {
     const item = data[kind][id];
