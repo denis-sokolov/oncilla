@@ -7,7 +7,7 @@ Install Oncilla DB from npm registry with `npm install --save oncilla`.
 Configure Oncilla DB for your data kinds. Data kinds are synchronized atomically, and in full. For an example, for a to-do app the kinds would be tasks and tags. Configure with empty objects for every key. You also need to provide your instance of React for Oncilla to generate hooks specific to your application.
 
 ```js
-import { configure } from "oncilla/dist/react";
+import { configure } from "oncilla";
 const { create } = configure({
   data: {
     categories: {},
@@ -42,7 +42,7 @@ Now include your database in the UI. React is the primary way to use Oncilla, bu
 
 ```jsx
 const { withDB } = create({ network: network });
-ReactDOM.render({withDB(<App />)});
+ReactDOM.render(withDB(<App />));
 ```
 
 Now you can use the data access hooks in your components, as shown in the [main readme](../README.md).
