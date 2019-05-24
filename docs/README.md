@@ -42,7 +42,7 @@ Now include your database in the UI. React is the primary way to use Oncilla, bu
 
 ```jsx
 const { withDB } = create({ network: network });
-ReactDOM.render({withDB(<App />)});
+ReactDOM.render(withDB(<App />));
 ```
 
 Now you can use the data access hooks in your components, as shown in the [main readme](../README.md).
