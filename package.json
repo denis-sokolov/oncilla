@@ -10,6 +10,7 @@
     "lint": "tslint --project .",
     "prepublishOnly": "npm run verify && npm run build",
     "start": "ava --watch",
+    "start-building": "rm -rf dist && NODE_ENV=production tsc --watch",
     "test": "ava",
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run format-verify && npm run lint && npm run test"
