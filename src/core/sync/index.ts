@@ -9,19 +9,25 @@ function makeCounters() {
   return {
     add: function(a: string, b: string, f: () => () => void) {
       const kind = stringify(a, b);
-      if (!data[kind] || data[kind].count === 0) {
-        data[kind] = { count: 0, cancel: f() };
-      }
-      data[kind].count += 1;
-      return function() {
-        data[kind].count -= 1;
-        if (data[kind].count === 0) {
-          data[kind].cancel();
-          data[kind].cancel = () => {
-            throw new Error(`Assertion error`);
-          };
-        }
-      };
+
+      // Cancellation is still not in the protocol,
+      // so this is stub logic for now that never cancels.
+      if (!data[kind]) data[kind] = { count: 1, cancel: f() };
+      return () => {};
+
+      // if (!data[kind] || data[kind].count === 0) {
+      //   data[kind] = { count: 0, cancel: f() };
+      // }
+      // data[kind].count += 1;
+      // return function() {
+      //   data[kind].count -= 1;
+      //   if (data[kind].count === 0) {
+      //     data[kind].cancel();
+      //     data[kind].cancel = () => {
+      //       throw new Error(`Assertion error`);
+      //     };
+      //   }
+      // };
     }
   };
 }

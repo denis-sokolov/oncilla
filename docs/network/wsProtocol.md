@@ -60,6 +60,8 @@ The client expresses an intent to receive messages about a particular domain ent
 
 The general expectation of a subscription is that the server will immediately queue sending an `update` message with the current version of the entity, and will keep sending further `update` messages whenever anything changes about this domain entity.
 
+A client must not send a duplicate `subscribe` in the same session.
+
 The server may, however, decide to send fewer update messages than there are updates. (And even more, duplicates are not problematic)
 
 ```json
