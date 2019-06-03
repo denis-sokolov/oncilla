@@ -1,1 +1,1 @@
-export { runMemoryServer } from "./network";
+export { runMemoryServer, runWebsocketServer } from "./network";
