@@ -2,18 +2,20 @@ import { Server as HttpServer } from "http";
 
 import { Data } from "../../core";
 
+import { Serialization } from "./serialization";
 import { runWebsocketServer } from "./server";
 
 const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
 
 type Params = {
   initialData: { [kind: string]: { [id: string]: unknown } };
+  serialization?: Serialization;
 } & (
   | { port: number; server?: undefined }
   | { port?: undefined; server: HttpServer });
 
 export function runMemoryServer(params: Params) {
-  const { initialData, port, server } = params;
+  const { initialData, port, serialization, server } = params;
 
   const data: Data<any> = {};
   Object.keys(initialData).forEach(kind => {
@@ -42,6 +44,7 @@ export function runMemoryServer(params: Params) {
       send(getItem(kind, id));
     },
     port: port as any,
+    serialization,
     server: server as any
   });
 }

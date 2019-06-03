@@ -68,3 +68,14 @@ runWebsocketServer({
   port: 8090
 });
 ```
+
+Both client and server support serialization options:
+
+```js
+makeWsProtocolAdapter({
+  serialization: {
+    encode: value => JSON.stringify(value),
+    decode: string => JSON.parse(string)
+  }
+});
+```

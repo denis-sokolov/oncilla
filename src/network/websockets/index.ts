@@ -1,7 +1,9 @@
 import ReconnectingWebSocket from "reconnecting-websocket";
 import { NetworkAdapter } from "../types";
+import { Serialization, jsonSerialization } from "./serialization";
 
 type Params = {
+  serialization?: Serialization;
   url: string;
 };
 
@@ -10,6 +12,7 @@ export { runWebsocketServer } from "./server";
 
 export function makeWsProtocolAdapter(params: Params): NetworkAdapter<any> {
   const { url } = params;
+  const serialization = params.serialization || jsonSerialization;
   return function({ onChange, onConnectivityChange, onError, onPushResult }) {
     const socket = new ReconnectingWebSocket(url);
     socket.onopen = () => onConnectivityChange("online");
@@ -29,7 +32,7 @@ export function makeWsProtocolAdapter(params: Params): NetworkAdapter<any> {
           kind: msg.kind,
           id: msg.id,
           revision: msg.revision,
-          value: msg.value
+          value: serialization.decode(msg.value)
         })
     };
     socket.onmessage = function(event) {
@@ -56,7 +59,7 @@ export function makeWsProtocolAdapter(params: Params): NetworkAdapter<any> {
           id,
           pushId,
           lastSeenRevision,
-          value
+          value: serialization.encode(value)
         });
       }
     };
