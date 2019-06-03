@@ -14,6 +14,7 @@ export type KV = K & {
 export type Params = {
   onChangeData: (params: {
     kind: string;
+    lastSeenRevision: string;
     id: string;
     send: (v: ValueContainer) => void;
     value: unknown;

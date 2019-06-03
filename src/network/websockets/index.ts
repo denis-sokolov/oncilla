@@ -6,6 +6,7 @@ type Params = {
 };
 
 export * from "./memoryServer";
+export { runWebsocketServer } from "./server";
 
 export function makeWsProtocolAdapter(params: Params): NetworkAdapter<any> {
   const { url } = params;

@@ -44,9 +44,10 @@ export function runWebsocketServer(params: Params) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       push: msg => {
-        const { kind, id, value } = msg;
+        const { kind, id, lastSeenRevision, value } = msg;
         onChangeData({
           kind,
+          lastSeenRevision,
           id,
           value,
           send: v => events.emit("change", { kind, id, value: v })
