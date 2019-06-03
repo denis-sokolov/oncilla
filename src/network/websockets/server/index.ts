@@ -1,10 +1,11 @@
 import NanoEvents from "nanoevents";
 import WebSocket from "ws";
-
+import { jsonSerialization } from "../serialization";
 import { stringy, K, KV, Params, ValueContainer } from "./types";
 
 export function runWebsocketServer(params: Params) {
   const { onChangeData, onRequestData } = params;
+  const serialization = params.serialization || jsonSerialization;
 
   const events = new NanoEvents<{ change: KV }>();
 
@@ -49,7 +50,7 @@ export function runWebsocketServer(params: Params) {
           kind,
           lastSeenRevision,
           id,
-          value,
+          value: serialization.decode(value),
           send: v => events.emit("change", { kind, id, value: v })
         })
           .then(function(result) {
@@ -75,7 +76,7 @@ export function runWebsocketServer(params: Params) {
             id,
             kind,
             revision: v.revision,
-            value: v.value
+            value: serialization.encode(v.value)
           })
         );
       }

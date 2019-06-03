@@ -1,5 +1,7 @@
 import { Server as HttpServer } from "http";
 
+import { Serialization } from "../serialization";
+
 export const stringy = ({ kind, id }: K) => `${kind}-${id}`;
 
 export type K = {
@@ -24,6 +26,7 @@ export type Params = {
     id: string;
     send: (v: ValueContainer) => void;
   }) => void;
+  serialization?: Serialization;
 } & (
   | { port: number; server?: undefined }
   | { port?: undefined; server: HttpServer });
