@@ -1,3 +1,8 @@
+# 2.1.0
+
+- Add custom Websocket server helper
+- Added custom serialization
+
 # 2.0.0
 
 - Split the core and the adapters for easier tree-shaking and clearer structure.
