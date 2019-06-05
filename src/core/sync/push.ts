@@ -1,5 +1,6 @@
 import { PushResult } from "../../network/types";
 import { Data } from "../types";
+import { makeThrottled } from "./throttled";
 
 const defaultRetries = 15;
 
@@ -104,6 +105,7 @@ export function makePush<Domain>(params: Params<Domain>) {
     tasks.forEach(t => t.resolve());
   }
 
+  const run = makeThrottled<keyof Domain>(performPush);
   return async function<K extends keyof Domain>(
     kind: K,
     id: string,
@@ -111,7 +113,7 @@ export function makePush<Domain>(params: Params<Domain>) {
   ) {
     return new Promise<void>(resolve => {
       queuedTasksFor(kind, id).push({ delta, resolve });
-      performPush(kind, id);
+      run(kind, id);
     });
   };
 }
