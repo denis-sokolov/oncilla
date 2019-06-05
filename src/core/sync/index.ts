@@ -1,5 +1,6 @@
-import { Connectivity, NetworkAdapter, PushResult } from "../../network/types";
+import { Connectivity, NetworkAdapter } from "../../network/types";
 import { Data } from "../types";
+import { makePush } from "./push";
 
 function makeCounters() {
   const stringify = (a: string, b: string) => `${a}-${b}`;
@@ -56,10 +57,15 @@ export function sync<Domain>(params: Params<Domain>) {
     onConnectivityChange();
   }
 
-  let pushCounter = 0;
-  const pendingPushes: {
-    [id: string]: { [k in PushResult]: (() => void) | undefined };
-  } = {};
+  const pusher = makePush({
+    canonData,
+    onError: err => {
+      setConnectivity("crashed");
+      throw err;
+    },
+    onNetPush: params => net.push(params),
+    shouldCrashWrites
+  });
 
   const net = network({
     onChange: function({ kind, id, revision, value }) {
@@ -70,104 +76,10 @@ export function sync<Domain>(params: Params<Domain>) {
     onError: function(error) {
       throw error;
     },
-    onPushResult: function(pushId, result) {
-      if (pendingPushes[pushId]) {
-        const handler = pendingPushes[pushId][result];
-        if (!handler)
-          throw new Error(`Not implemented push result handler for ${result}`);
-        handler();
-        delete pendingPushes[pushId];
-      }
-    }
+    onPushResult: pusher.onResult
   });
 
   const counters = makeCounters();
-  const defaultRetries = 15;
-
-  async function attemptPush<K extends keyof Domain>(params: {
-    kind: K;
-    id: string;
-    deltas: ((prev: Domain[K]) => Domain[K])[];
-    retriesRemaining: number;
-  }): Promise<void> {
-    if (shouldCrashWrites()) {
-      return new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Simulate write failure")), 2000);
-      });
-    }
-
-    const { kind, id, deltas, retriesRemaining } = params;
-
-    const curr = canonData[kind][id];
-    if (!curr)
-      throw new Error(
-        `Pushing to ${kind} while the canon data is empty is not yet implemented. Proper implementation turns on observing here, waits for the data and tries to push.`
-      );
-
-    const value = deltas.reduce((v, delta) => delta(v), curr.value);
-
-    const pushId = `push-${pushCounter++}`;
-    return new Promise(function(resolve, reject) {
-      pendingPushes[pushId] = {
-        conflict: () =>
-          // Server and the connection are healthy, so reset the retries
-          // We can resolve conflicts infinitely, it’s the internal errors that
-          // we need to limit retries.
-          attemptPush({ ...params, retriesRemaining: defaultRetries })
-            .then(resolve)
-            .catch(reject),
-        internalError: () => {
-          // As many other pieces of this code, the retry logic needs
-          // cleaner refactoring
-          if (retriesRemaining === 0)
-            return reject(new Error(`Write failed after all retries`));
-          setTimeout(function() {
-            attemptPush({ ...params, retriesRemaining: retriesRemaining - 1 })
-              .then(resolve)
-              .catch(reject);
-          }, 3000);
-        },
-        success: resolve
-      };
-      net.push({
-        kind,
-        id,
-        pushId,
-        lastSeenRevision: curr.revision,
-        value
-      });
-    });
-  }
-
-  const queuedDeltas: {
-    [k in keyof Domain]?: {
-      [id: string]: ((prev: Domain[k]) => Domain[k])[];
-    }
-  } = {};
-  function deltaQueueFor<K extends keyof Domain>(kind: K, id: string) {
-    queuedDeltas[kind] = queuedDeltas[kind] || {};
-    queuedDeltas[kind]![id] = queuedDeltas[kind]![id] || [];
-    return queuedDeltas[kind]![id]!;
-  }
-
-  async function performPush<K extends keyof Domain>(kind: K, id: string) {
-    const queue = deltaQueueFor(kind, id);
-    const deltas = queue.slice();
-    queue.splice(0);
-
-    try {
-      await attemptPush({
-        kind,
-        id,
-        deltas,
-        retriesRemaining: defaultRetries
-      });
-    } catch (err) {
-      setConnectivity("crashed");
-      throw err;
-    }
-  }
-
   return {
     connectivity: () => connectivity,
     observe: <K extends keyof Domain>(kind: K, id: string) => {
@@ -175,13 +87,6 @@ export function sync<Domain>(params: Params<Domain>) {
         return net.getAndObserve(kind, id);
       });
     },
-    push: async function<K extends keyof Domain>(
-      kind: K,
-      id: string,
-      delta: (prev: Domain[K]) => Domain[K]
-    ) {
-      deltaQueueFor(kind, id).push(delta);
-      await performPush(kind, id);
-    }
+    push: pusher.push
   };
 }
