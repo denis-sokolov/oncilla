@@ -79,32 +79,36 @@ export function makePush<Domain>(params: Params<Domain>) {
     });
   }
 
-  const queuedDeltas: {
+  const queuedTasks: {
     [k in keyof Domain]?: {
-      [id: string]: ((prev: Domain[k]) => Domain[k])[];
+      [id: string]: {
+        delta: (prev: Domain[k]) => Domain[k];
+        resolve: () => void;
+      }[];
     }
   } = {};
-  function deltaQueueFor<K extends keyof Domain>(kind: K, id: string) {
-    queuedDeltas[kind] = queuedDeltas[kind] || {};
-    queuedDeltas[kind]![id] = queuedDeltas[kind]![id] || [];
-    return queuedDeltas[kind]![id]!;
+  function queuedTasksFor<K extends keyof Domain>(kind: K, id: string) {
+    queuedTasks[kind] = queuedTasks[kind] || {};
+    queuedTasks[kind]![id] = queuedTasks[kind]![id] || [];
+    return queuedTasks[kind]![id]!;
   }
 
   async function performPush<K extends keyof Domain>(kind: K, id: string) {
-    const queue = deltaQueueFor(kind, id);
-    const deltas = queue.slice();
-    queue.splice(0);
+    const taskQueue = queuedTasksFor(kind, id);
+    const tasks = taskQueue.slice();
+    taskQueue.splice(0);
 
     try {
       await attemptPush({
         kind,
         id,
-        deltas,
+        deltas: tasks.map(t => t.delta),
         retriesRemaining: defaultRetries
       });
     } catch (err) {
       onError(err);
     }
+    tasks.forEach(t => t.resolve());
   }
 
   return {
@@ -122,8 +126,10 @@ export function makePush<Domain>(params: Params<Domain>) {
       id: string,
       delta: (prev: Domain[K]) => Domain[K]
     ) {
-      deltaQueueFor(kind, id).push(delta);
-      await performPush(kind, id);
+      return new Promise<void>(resolve => {
+        queuedTasksFor(kind, id).push({ delta, resolve });
+        performPush(kind, id);
+      });
     }
   };
 }
