@@ -1,4 +1,4 @@
-import { Connectivity, NetworkAdapter } from "../../network/types";
+import { Connectivity, NetworkAdapter, PushResult } from "../../network/types";
 import { Data } from "../types";
 import { makePush } from "./push";
 
@@ -57,13 +57,21 @@ export function sync<Domain>(params: Params<Domain>) {
     onConnectivityChange();
   }
 
+  const pushesInFlight: {
+    [id: string]: (result: PushResult) => void;
+  } = {};
+
   const pusher = makePush({
     canonData,
     onError: err => {
       setConnectivity("crashed");
       throw err;
     },
-    onNetPush: params => net.push(params),
+    onNetPush: params =>
+      new Promise(resolve => {
+        net.push(params);
+        pushesInFlight[params.pushId] = resolve;
+      }),
     shouldCrashWrites
   });
 
@@ -76,7 +84,11 @@ export function sync<Domain>(params: Params<Domain>) {
     onError: function(error) {
       throw error;
     },
-    onPushResult: pusher.onResult
+    onPushResult: (pushId, result) => {
+      if (!pushesInFlight[pushId]) return;
+      pushesInFlight[pushId](result);
+      delete pushesInFlight[pushId];
+    }
   });
 
   const counters = makeCounters();

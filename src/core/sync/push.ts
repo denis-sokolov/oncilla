@@ -3,6 +3,8 @@ import { Data } from "../types";
 
 const defaultRetries = 15;
 
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
 type Params<Domain> = {
   canonData: Data<Domain>;
   onError: (err: Error) => void;
@@ -12,7 +14,7 @@ type Params<Domain> = {
     lastSeenRevision: string;
     pushId: string;
     value: Domain[K];
-  }) => void;
+  }) => Promise<PushResult>;
   shouldCrashWrites: () => boolean;
 };
 
@@ -20,9 +22,6 @@ export function makePush<Domain>(params: Params<Domain>) {
   const { canonData, onError, onNetPush, shouldCrashWrites } = params;
 
   let pushCounter = 0;
-  const pendingPushes: {
-    [id: string]: { [k in PushResult]: (() => void) | undefined };
-  } = {};
 
   async function attemptPush<K extends keyof Domain>(params: {
     kind: K;
@@ -31,9 +30,8 @@ export function makePush<Domain>(params: Params<Domain>) {
     retriesRemaining: number;
   }): Promise<void> {
     if (shouldCrashWrites()) {
-      return new Promise((_, reject) => {
-        setTimeout(() => reject(new Error("Simulate write failure")), 2000);
-      });
+      await sleep(2000);
+      throw new Error("Simulate write failure");
     }
 
     const { kind, id, deltas, retriesRemaining } = params;
@@ -47,36 +45,31 @@ export function makePush<Domain>(params: Params<Domain>) {
     const value = deltas.reduce((v, delta) => delta(v), curr.value);
 
     const pushId = `push-${pushCounter++}`;
-    return new Promise(function(resolve, reject) {
-      pendingPushes[pushId] = {
-        conflict: () =>
-          // Server and the connection are healthy, so reset the retries
-          // We can resolve conflicts infinitely, it’s the internal errors that
-          // we need to limit retries.
-          attemptPush({ ...params, retriesRemaining: defaultRetries })
-            .then(resolve)
-            .catch(reject),
-        internalError: () => {
-          // As many other pieces of this code, the retry logic needs
-          // cleaner refactoring
-          if (retriesRemaining === 0)
-            return reject(new Error(`Write failed after all retries`));
-          setTimeout(function() {
-            attemptPush({ ...params, retriesRemaining: retriesRemaining - 1 })
-              .then(resolve)
-              .catch(reject);
-          }, 3000);
-        },
-        success: resolve
-      };
-      onNetPush({
-        kind,
-        id,
-        pushId,
-        lastSeenRevision: curr.revision,
-        value
-      });
+    const result = await onNetPush({
+      kind,
+      id,
+      pushId,
+      lastSeenRevision: curr.revision,
+      value
     });
+    if (result === "conflict") {
+      // Server and the connection are healthy, so reset the retries
+      // We can resolve conflicts infinitely, it’s the internal errors that
+      // we need to limit retries.
+      return await attemptPush({ ...params, retriesRemaining: defaultRetries });
+    }
+    if (result === "internalError") {
+      // As many other pieces of this code, the retry logic needs
+      // cleaner refactoring
+      if (retriesRemaining === 0)
+        throw new Error(`Write failed after all retries`);
+      await sleep(3000);
+      return await attemptPush({
+        ...params,
+        retriesRemaining: retriesRemaining - 1
+      });
+    }
+    if (result !== "success") throw new Error(`Unexpected result ${result}`);
   }
 
   const queuedTasks: {
@@ -112,15 +105,6 @@ export function makePush<Domain>(params: Params<Domain>) {
   }
 
   return {
-    onResult: function(pushId: string, result: PushResult) {
-      if (pendingPushes[pushId]) {
-        const handler = pendingPushes[pushId][result];
-        if (!handler)
-          throw new Error(`Not implemented push result handler for ${result}`);
-        handler();
-        delete pendingPushes[pushId];
-      }
-    },
     push: async function<K extends keyof Domain>(
       kind: K,
       id: string,
