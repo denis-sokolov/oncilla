@@ -61,20 +61,6 @@ export function sync<Domain>(params: Params<Domain>) {
     [id: string]: (result: PushResult) => void;
   } = {};
 
-  const pusher = makePush({
-    canonData,
-    onError: err => {
-      setConnectivity("crashed");
-      throw err;
-    },
-    onNetPush: params =>
-      new Promise(resolve => {
-        net.push(params);
-        pushesInFlight[params.pushId] = resolve;
-      }),
-    shouldCrashWrites
-  });
-
   const net = network({
     onChange: function({ kind, id, revision, value }) {
       canonData[kind][id] = { revision, value };
@@ -91,6 +77,20 @@ export function sync<Domain>(params: Params<Domain>) {
     }
   });
 
+  const push = makePush({
+    canonData,
+    onError: err => {
+      setConnectivity("crashed");
+      throw err;
+    },
+    onNetPush: params =>
+      new Promise(resolve => {
+        pushesInFlight[params.pushId] = resolve;
+        net.push(params);
+      }),
+    shouldCrashWrites
+  });
+
   const counters = makeCounters();
   return {
     connectivity: () => connectivity,
@@ -99,6 +99,6 @@ export function sync<Domain>(params: Params<Domain>) {
         return net.getAndObserve(kind, id);
       });
     },
-    push: pusher.push
+    push
   };
 }

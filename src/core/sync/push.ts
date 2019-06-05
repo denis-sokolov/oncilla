@@ -104,16 +104,14 @@ export function makePush<Domain>(params: Params<Domain>) {
     tasks.forEach(t => t.resolve());
   }
 
-  return {
-    push: async function<K extends keyof Domain>(
-      kind: K,
-      id: string,
-      delta: (prev: Domain[K]) => Domain[K]
-    ) {
-      return new Promise<void>(resolve => {
-        queuedTasksFor(kind, id).push({ delta, resolve });
-        performPush(kind, id);
-      });
-    }
+  return async function<K extends keyof Domain>(
+    kind: K,
+    id: string,
+    delta: (prev: Domain[K]) => Domain[K]
+  ) {
+    return new Promise<void>(resolve => {
+      queuedTasksFor(kind, id).push({ delta, resolve });
+      performPush(kind, id);
+    });
   };
 }
