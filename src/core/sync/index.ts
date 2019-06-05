@@ -84,10 +84,10 @@ export function sync<Domain>(params: Params<Domain>) {
   const counters = makeCounters();
   const defaultRetries = 15;
 
-  async function push<K extends keyof Domain>(params: {
+  async function attemptPush<K extends keyof Domain>(params: {
     kind: K;
     id: string;
-    delta: (prev: Domain[K]) => Domain[K];
+    deltas: ((prev: Domain[K]) => Domain[K])[];
     retriesRemaining: number;
   }): Promise<void> {
     if (shouldCrashWrites()) {
@@ -96,7 +96,7 @@ export function sync<Domain>(params: Params<Domain>) {
       });
     }
 
-    const { kind, id, delta, retriesRemaining } = params;
+    const { kind, id, deltas, retriesRemaining } = params;
 
     const curr = canonData[kind][id];
     if (!curr)
@@ -104,7 +104,7 @@ export function sync<Domain>(params: Params<Domain>) {
         `Pushing to ${kind} while the canon data is empty is not yet implemented. Proper implementation turns on observing here, waits for the data and tries to push.`
       );
 
-    const value = delta(curr.value);
+    const value = deltas.reduce((v, delta) => delta(v), curr.value);
 
     const pushId = `push-${pushCounter++}`;
     return new Promise(function(resolve, reject) {
@@ -113,7 +113,7 @@ export function sync<Domain>(params: Params<Domain>) {
           // Server and the connection are healthy, so reset the retries
           // We can resolve conflicts infinitely, it’s the internal errors that
           // we need to limit retries.
-          push({ ...params, retriesRemaining: defaultRetries })
+          attemptPush({ ...params, retriesRemaining: defaultRetries })
             .then(resolve)
             .catch(reject),
         internalError: () => {
@@ -122,7 +122,7 @@ export function sync<Domain>(params: Params<Domain>) {
           if (retriesRemaining === 0)
             return reject(new Error(`Write failed after all retries`));
           setTimeout(function() {
-            push({ ...params, retriesRemaining: retriesRemaining - 1 })
+            attemptPush({ ...params, retriesRemaining: retriesRemaining - 1 })
               .then(resolve)
               .catch(reject);
           }, 3000);
@@ -139,6 +139,35 @@ export function sync<Domain>(params: Params<Domain>) {
     });
   }
 
+  const queuedDeltas: {
+    [k in keyof Domain]?: {
+      [id: string]: ((prev: Domain[k]) => Domain[k])[];
+    }
+  } = {};
+  function deltaQueueFor<K extends keyof Domain>(kind: K, id: string) {
+    queuedDeltas[kind] = queuedDeltas[kind] || {};
+    queuedDeltas[kind]![id] = queuedDeltas[kind]![id] || [];
+    return queuedDeltas[kind]![id]!;
+  }
+
+  async function performPush<K extends keyof Domain>(kind: K, id: string) {
+    const queue = deltaQueueFor(kind, id);
+    const deltas = queue.slice();
+    queue.splice(0);
+
+    try {
+      await attemptPush({
+        kind,
+        id,
+        deltas,
+        retriesRemaining: defaultRetries
+      });
+    } catch (err) {
+      setConnectivity("crashed");
+      throw err;
+    }
+  }
+
   return {
     connectivity: () => connectivity,
     observe: <K extends keyof Domain>(kind: K, id: string) => {
@@ -150,13 +179,9 @@ export function sync<Domain>(params: Params<Domain>) {
       kind: K,
       id: string,
       delta: (prev: Domain[K]) => Domain[K]
-    ): Promise<void> {
-      try {
-        await push({ kind, id, delta, retriesRemaining: defaultRetries });
-      } catch (err) {
-        setConnectivity("crashed");
-        throw err;
-      }
+    ) {
+      deltaQueueFor(kind, id).push(delta);
+      await performPush(kind, id);
     }
   };
 }
