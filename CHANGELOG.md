@@ -1,3 +1,7 @@
+# 2.2.0
+
+- Client-side sync throttle.
+
 # 2.1.0
 
 - Add custom Websocket server helper
