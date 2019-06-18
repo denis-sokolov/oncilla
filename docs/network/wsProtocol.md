@@ -28,7 +28,7 @@ All messages must be self-contained. This means it is safe to assume most messag
 
 The WebSockets will automatically close on the server when the client is gone, but the opposite is, unfortunately, not true. Because our client-side applications need to show offline status, we must implement this at the application level.
 
-The client decides when it wants to check for connectivity and sends a `ping` message to the server. The server must immediatly respond with a `pong` message:
+The client decides when it wants to check for connectivity and sends a `ping` message to the server. The server must immediately respond with a `pong` message:
 
 ```json
 {
