@@ -32,7 +32,7 @@ export function runMemoryServer(params: Params) {
   }
 
   runWebsocketServer({
-    onChangeData: async function({ kind, id, send, value }) {
+    onChangeData: async function({auth, kind, id, send, value }) {
       await wait(500);
       const curr = getItem(kind, id);
       curr.revision = String(Number(curr.revision) + 1);
@@ -40,7 +40,7 @@ export function runMemoryServer(params: Params) {
       send(curr);
       return "success";
     },
-    onRequestData: function({ kind, id, send }) {
+    onRequestData: function({auth, kind, id, send }) {
       send(getItem(kind, id));
     },
     port: port as any,

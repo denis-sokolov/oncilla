@@ -113,6 +113,22 @@ A successful push operation will usually result in two messages from the server 
 
 If the server staggers the update messages, it is fine to send the update message including more changes that the latest push, but it must still be sent before the pushResult message. If necessary, the server may artificially delay the `pushResult` message on the server for up to 5-10 seconds.
 
+## Authentication
+
+Oncilla supports the transfer of authentication credentials via it's actions. By supplying an optional "auth" field, clients can send authentication information to the server. This could be used for establishing initial connections or ensuring a continued connection. Oncilla  is indifferent both the authentication mechanism and value contained in the field.
+
+```json
+{
+  "auth": {},
+  "action": "push",
+  "kind": "",
+  "id": "",
+  "lastSeenRevision": "",
+  "value": {},
+  "pushId": ""
+}
+```
+
 ## Limitations
 
 Lost WebSocket messages are not handled in this version.

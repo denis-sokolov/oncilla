@@ -45,8 +45,9 @@ export function runWebsocketServer(params: Params) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       push: msg => {
-        const { kind, id, lastSeenRevision, value } = msg;
+        const { auth, kind, id, lastSeenRevision, value } = msg;
         onChangeData({
+          auth,
           kind,
           lastSeenRevision,
           id,
@@ -69,9 +70,10 @@ export function runWebsocketServer(params: Params) {
           });
       },
       subscribe: msg => {
-        const { id, kind } = msg;
-        getAndObserve({ kind, id }, v =>
+        const { auth, id, kind } = msg;
+        getAndObserve({ auth, kind, id }, v =>
           send({
+            auth,
             action: "update",
             id,
             kind,
