@@ -113,6 +113,49 @@ A successful push operation will usually result in two messages from the server 
 
 If the server staggers the update messages, it is fine to send the update message including more changes that the latest push, but it must still be sent before the pushResult message. If necessary, the server may artificially delay the `pushResult` message on the server for up to 5-10 seconds.
 
+## Authentication
+
+Oncilla supports a first class `auth` action, designed to establish an initial/ongoing authenticated websocket session with the server. The message is structured as follows:
+
+```json
+{
+  "token": "",
+  "action": "auth"
+}
+```
+
+The purpose of this action is:
+1. Establish/re-establish authentication with the Server
+2. Pass any Identity related information related to authentication (e.g. role, attributes) to determine client authorization
+
+Oncilla is indifferent to both the authentication mechanism and value contained in the field, leaving the verification up to the server implementation. A good example of a payload of `token` is a [JWT token](https://jwt.io/).
+
+**result** If the authentication succeeded the `result` field must be `"success"`, if the authentication was rejected (e.g. expiration date), the `result` field must be `"failure"` and if the authentication was rejected because of internal errors, the field must be `"internalError"`.
+
+**authz** Relevant authorization details can be returned from the authentication action
+
+```json
+{
+  "action": "authResult",
+  "authz": {},
+  "result": "success"
+}
+```
+
+Oncilla also supports the transfer of authorization details via it's actions. By supplying an optional "authz" field, clients can send authorization information to the server. These are application specific client details.
+
+```json
+{
+  "authz": "",
+  "action": "push",
+  "kind": "",
+  "id": "",
+  "lastSeenRevision": "",
+  "value": {},
+  "pushId": ""
+}
+```
+
 ## Limitations
 
 Lost WebSocket messages are not handled in this version.
