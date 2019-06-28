@@ -1,8 +1,16 @@
 {
-  "name": "oncilla",
-  "version": "2.3.0",
-  "description": "Client-side database for real-time and optimistic UI",
+  "name": "",
+  "version": "0.0.0",
+  "description": "",
+  "main": "build/src/index.js",
+  "types": "build/src/index.d.ts",
+  "files": [
+    "build/src"
+  ],
+  "license": "Apache-2.0",
+  "keywords": [],
   "scripts": {
+    "start-server": "ts-node -T src/server.ts",
     "build": "rm -rf dist && NODE_ENV=production tsc",
     "ci": "npm run verify",
     "format": "prettier --write '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
@@ -15,33 +23,22 @@
     "typecheck": "tsc --noEmit",
     "verify": "npm run typecheck && npm run format-verify && npm run lint && npm run test"
   },
-  "dependencies": {
-    "nanoevents": "^1.0.8",
-    "reconnecting-websocket": "^4.1.10",
-    "ws": "^6.2.1"
-  },
   "devDependencies": {
-    "@types/nanoevents": "^1.0.0",
-    "@types/react": "^16.8.13",
-    "@types/ws": "^6.0.1",
-    "ava": "^1.4.1",
-    "prettier": "^1.17.0",
-    "react": "^16.8.6",
-    "ts-node": "^8.1.0",
-    "tslint": "^5.16.0",
-    "tslint-no-circular-imports": "^0.6.2",
-    "typescript": "^3.3.4000"
+    "ava": "^2.1.0",
+    "gts": "^1.0.0",
+    "prettier": "^1.18.2",
+    "typescript": "~3.4.0"
   },
-  "browser": "dist/index.js",
+  "dependencies": {
+    "@types/koa": "^2.0.48",
+    "koa": "^2.7.0",
+    "oncilla": "^2.2.0",
+    "ts-node": "^8.3.0"
+  },
   "engines": {
     "node": ">=8.9.0",
-    "npm": ">=6.6"
+    "npm": ">=6"
   },
-  "files": [
-    "dist/**/*"
-  ],
-  "license": "ISC",
-  "sideEffects": false,
   "ava": {
     "babel": false,
     "compileEnhancements": false,
