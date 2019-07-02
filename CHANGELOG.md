@@ -1,3 +1,8 @@
+# 2.3.0
+
+- Auth additions to WebSocket protocol.
+- Close connection function in the server-side piece.
+
 # 2.2.0
 
 - Client-side sync throttle.
