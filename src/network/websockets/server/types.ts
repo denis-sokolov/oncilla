@@ -18,12 +18,14 @@ export type Params = {
     kind: string;
     lastSeenRevision: string;
     id: string;
+    close: () => void;
     send: (v: ValueContainer) => void;
     value: unknown;
   }) => Promise<"success" | "conflict">;
   onRequestData: (params: {
     kind: string;
     id: string;
+    close: () => void;
     send: (v: ValueContainer) => void;
   }) => void;
   serialization?: Serialization;
