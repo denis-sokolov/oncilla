@@ -4,7 +4,7 @@ import { jsonSerialization } from "../serialization";
 import { stringy, K, KV, Params, ValueContainer } from "./types";
 
 export function runWebsocketServer(params: Params) {
-  const { onChangeData, onRequestData } = params;
+  const { onAuthenticate, onChangeData, onRequestData } = params;
   const serialization = params.serialization || jsonSerialization;
 
   const events = new NanoEvents<{ change: KV }>();
@@ -49,6 +49,22 @@ export function runWebsocketServer(params: Params) {
 
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
+      auth: msg => {
+        const { token } = msg;
+        onAuthenticate({ token })
+          .then(function(result) {
+            send({
+              action: "authResult",
+              result: result
+            });
+          })
+          .catch(function() {
+            send({
+              action: "authResult",
+              result: "internalError"
+            });
+          });
+      },
       push: msg => {
         const { kind, id, lastSeenRevision, value } = msg;
         onChangeData({
