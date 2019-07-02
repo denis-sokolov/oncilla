@@ -34,7 +34,7 @@ export function runMemoryServer(params: Params) {
   runWebsocketServer({
     onAuthenticate: async function() {
       await wait(500);
-      return { result: "success", authz: {} };
+      return "success";
     },
     onChangeData: async function({ kind, id, send, value }) {
       await wait(500);

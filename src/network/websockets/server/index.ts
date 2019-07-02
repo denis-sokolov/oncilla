@@ -15,11 +15,7 @@ export function runWebsocketServer(params: Params) {
   });
 
   const listeningTo: string[] = [];
-  function getAndObserve(
-    authz: string,
-    k: K,
-    f: (value: ValueContainer) => void
-  ) {
+  function getAndObserve(k: K, f: (value: ValueContainer) => void) {
     events.on("change", eventKV => {
       if (stringy(k) === stringy(eventKV)) f(eventKV.value);
     });
@@ -30,7 +26,6 @@ export function runWebsocketServer(params: Params) {
     }
     listeningTo.push(stringy(k));
     onRequestData({
-      authz,
       ...k,
       send: value => events.emit("change", { ...k, value })
     });
@@ -49,67 +44,59 @@ export function runWebsocketServer(params: Params) {
 
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
-      auth: msg => authenticate(msg),
-      push: msg => push(msg),
-      subscribe: msg => subscribe(msg)
-    };
-
-    function authenticate(msg: any) {
-      const { token } = msg;
-      onAuthenticate({ token })
-        .then(function(result) {
-          send({
-            action: "authResult",
-            authz: result.authz,
-            result: result.result
+      auth: msg => {
+        const { token } = msg;
+        onAuthenticate({ token })
+          .then(function(result) {
+            send({
+              action: "authResult",
+              result: result
+            });
+          })
+          .catch(function() {
+            send({
+              action: "authResult",
+              result: "internalError"
+            });
           });
-        })
-        .catch(function() {
-          send({
-            action: "authResult",
-            result: "internalError"
-          });
-        });
-    }
-
-    function push(msg: any) {
-      const { authz, kind, id, lastSeenRevision, value } = msg;
-      onChangeData({
-        authz,
-        kind,
-        lastSeenRevision,
-        id,
-        value: serialization.decode(value),
-        send: v => events.emit("change", { kind, id, value: v })
-      })
-        .then(function(result) {
-          send({
-            action: "pushResult",
-            pushId: msg.pushId,
-            result: result
-          });
-        })
-        .catch(function() {
-          send({
-            action: "pushResult",
-            pushId: msg.pushId,
-            result: "internalError"
-          });
-        });
-    }
-
-    function subscribe(msg: any) {
-      const { authz, id, kind } = msg;
-      getAndObserve(authz, { kind, id }, v =>
-        send({
-          action: "update",
-          id,
+      },
+      push: msg => {
+        const { kind, id, lastSeenRevision, value } = msg;
+        onChangeData({
           kind,
-          revision: v.revision,
-          value: serialization.encode(v.value)
+          lastSeenRevision,
+          id,
+          value: serialization.decode(value),
+          send: v => events.emit("change", { kind, id, value: v })
         })
-      );
-    }
+          .then(function(result) {
+            send({
+              action: "pushResult",
+              pushId: msg.pushId,
+              result: result
+            });
+          })
+          .catch(function() {
+            send({
+              action: "pushResult",
+              pushId: msg.pushId,
+              result: "internalError"
+            });
+          });
+      },
+      subscribe: msg => {
+        const { id, kind } = msg;
+        getAndObserve({ kind, id }, v =>
+          send({
+            action: "update",
+            id,
+            kind,
+            revision: v.revision,
+            value: serialization.encode(v.value)
+          })
+        );
+      }
+    };
 
     socket.on("message", function(incomingBytes) {
       const msg = JSON.parse(incomingBytes.toString());

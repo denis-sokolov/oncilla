@@ -14,9 +14,8 @@ export type KV = K & {
 };
 
 export type Params = {
-  onAuthenticate: (params: { token: string }) => Promise<AuthResult>;
+  onAuthenticate: (params: { token: string }) => Promise<"success" | "failure">;
   onChangeData: (params: {
-    authz: string;
     kind: string;
     lastSeenRevision: string;
     id: string;
@@ -24,7 +23,6 @@ export type Params = {
     value: unknown;
   }) => Promise<"success" | "conflict">;
   onRequestData: (params: {
-    authz: string;
     kind: string;
     id: string;
     send: (v: ValueContainer) => void;
@@ -35,8 +33,3 @@ export type Params = {
   | { port?: undefined; server: HttpServer });
 
 export type ValueContainer = { revision: string; value: unknown };
-
-export type AuthResult = {
-  result: "success" | "failure" | "internalError";
-  authz: unknown;
-};
