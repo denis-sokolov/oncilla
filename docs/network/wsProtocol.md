@@ -113,6 +113,28 @@ A successful push operation will usually result in two messages from the server 
 
 If the server staggers the update messages, it is fine to send the update message including more changes that the latest push, but it must still be sent before the pushResult message. If necessary, the server may artificially delay the `pushResult` message on the server for up to 5-10 seconds.
 
+## Authentication
+
+Oncilla supports a first class `auth` action, designed to establish an initial/ongoing authenticated websocket session with the server. The message is structured as follows:
+
+```json
+{
+  "action": "auth",
+  "token": ""
+}
+```
+
+The purpose of this action is to establish/re-establish authentication with the Server.
+
+The server may respond with an `authResult` message:
+```json
+{
+  "action": "authResult",
+  "result": ""
+}
+
+Oncilla is indifferent to both the authentication mechanism and value contained in the field, leaving the verification up to the server implementation. A good example of a payload of `token` is a [JWT token](https://jwt.io/).
+
 ## Limitations
 
 Lost WebSocket messages are not handled in this version.
