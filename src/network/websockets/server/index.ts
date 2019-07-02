@@ -15,19 +15,24 @@ export function runWebsocketServer(params: Params) {
   });
 
   const listeningTo: string[] = [];
-  function getAndObserve(k: K, f: (value: ValueContainer) => void) {
+  function getAndObserve(
+    key: K,
+    close: () => void,
+    onData: (value: ValueContainer) => void
+  ) {
     events.on("change", eventKV => {
-      if (stringy(k) === stringy(eventKV)) f(eventKV.value);
+      if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
     });
-    if (listeningTo.includes(stringy(k))) {
-      const last = latestCopies[stringy(k)];
-      if (last) f(last);
+    if (listeningTo.includes(stringy(key))) {
+      const last = latestCopies[stringy(key)];
+      if (last) onData(last);
       return;
     }
-    listeningTo.push(stringy(k));
+    listeningTo.push(stringy(key));
     onRequestData({
-      ...k,
-      send: value => events.emit("change", { ...k, value })
+      ...key,
+      close: close,
+      send: value => events.emit("change", { ...key, value })
     });
   }
 
@@ -51,6 +56,7 @@ export function runWebsocketServer(params: Params) {
           lastSeenRevision,
           id,
           value: serialization.decode(value),
+          close: () => socket.terminate(),
           send: v => events.emit("change", { kind, id, value: v })
         })
           .then(function(result) {
@@ -70,14 +76,17 @@ export function runWebsocketServer(params: Params) {
       },
       subscribe: msg => {
         const { id, kind } = msg;
-        getAndObserve({ kind, id }, v =>
-          send({
-            action: "update",
-            id,
-            kind,
-            revision: v.revision,
-            value: serialization.encode(v.value)
-          })
+        getAndObserve(
+          { kind, id },
+          () => socket.terminate(),
+          v =>
+            send({
+              action: "update",
+              id,
+              kind,
+              revision: v.revision,
+              value: serialization.encode(v.value)
+            })
         );
       }
     };
