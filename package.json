@@ -41,6 +41,8 @@
     "dist/**/*"
   ],
   "license": "ISC",
+  "main": "dist/index.js",
+  "repository": "git@github.com:citrusbyte/oncilla.git",
   "sideEffects": false,
   "ava": {
     "babel": false,
