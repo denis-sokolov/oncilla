@@ -3,10 +3,6 @@ import { Server as HttpServer } from "http";
 
 export function attachWebSockets(server: HttpServer) {
   runWebsocketServer({
-    onAuthenticate: async function(msg: any) {
-      console.log("onAuthenticate: " + JSON.stringify(msg));
-      return "success";
-    },
     onChangeData: async function(msg: any) {
       console.log("onChangeData: " + JSON.stringify(msg));
       return "success";

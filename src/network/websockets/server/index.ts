@@ -50,20 +50,27 @@ export function runWebsocketServer(params: Params) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       auth: msg => {
-        const { token } = msg;
-        onAuthenticate({ token })
-          .then(function(result) {
-            send({
-              action: "authResult",
-              result: result
-            });
-          })
-          .catch(function() {
-            send({
-              action: "authResult",
-              result: "internalError"
-            });
+        if (!onAuthenticate) {
+          send({
+            action: "authResult",
+            result: "Not Implemented"
           });
+        } else {
+          const { token } = msg;
+          onAuthenticate({ token })
+            .then(function(result) {
+              send({
+                action: "authResult",
+                result: result
+              });
+            })
+            .catch(function() {
+              send({
+                action: "authResult",
+                result: "internalError"
+              });
+            });
+        }
       },
       push: msg => {
         const { kind, id, lastSeenRevision, value } = msg;

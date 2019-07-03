@@ -32,7 +32,7 @@
   "dependencies": {
     "@types/koa": "^2.0.48",
     "koa": "^2.7.0",
-    "oncilla": "^2.2.0",
+    "oncilla": "^2.3.0",
     "ts-node": "^8.3.0"
   },
   "engines": {
