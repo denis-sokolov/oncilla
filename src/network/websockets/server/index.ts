@@ -50,6 +50,7 @@ export function runWebsocketServer(params: Params) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       auth: msg => {
+        if (!onAuthenticate) throw new Error("Unexpected auth message");
         const { token } = msg;
         onAuthenticate({ token })
           .then(function(result) {
