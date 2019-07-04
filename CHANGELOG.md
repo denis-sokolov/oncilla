@@ -1,3 +1,7 @@
+# 2.4.0
+
+- Close function in onAuthenticate.
+
 # 2.3.0
 
 - Auth additions to WebSocket protocol.
