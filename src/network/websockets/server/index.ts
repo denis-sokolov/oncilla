@@ -52,7 +52,10 @@ export function runWebsocketServer(params: Params) {
       auth: msg => {
         if (!onAuthenticate) throw new Error("Unexpected auth message");
         const { token } = msg;
-        onAuthenticate({ token })
+        onAuthenticate({
+          close: () => socket.terminate(),
+          token
+        })
           .then(function(result) {
             send({
               action: "authResult",

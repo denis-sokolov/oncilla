@@ -15,6 +15,7 @@ export type KV = K & {
 
 export type Params = {
   onAuthenticate?: (params: {
+    close: () => void;
     token: string;
   }) => Promise<"success" | "failure">;
   onChangeData: (params: {
