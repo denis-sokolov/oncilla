@@ -18,7 +18,8 @@ export function runWebsocketServer(params: Params) {
   function getAndObserve(
     key: K,
     close: () => void,
-    onData: (value: ValueContainer) => void
+    onData: (value: ValueContainer) => void,
+    secWSKey: string
   ) {
     events.on("change", eventKV => {
       if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
@@ -32,6 +33,7 @@ export function runWebsocketServer(params: Params) {
     onRequestData({
       ...key,
       close: close,
+      secWSKey: secWSKey,
       send: value => events.emit("change", { ...key, value })
     });
   }
@@ -41,7 +43,14 @@ export function runWebsocketServer(params: Params) {
     server: params.server
   });
 
-  server.on("connection", function(socket) {
+  server.on("connection", function(socket, req) {
+    //https://tools.ietf.org/html/rfc6455#page-57
+    const secWSKey = req.headers["sec-websocket-key"]! as string;
+
+    if (!secWSKey) {
+      throw new Error("Expected Header sec-websocket-key is not present");
+    }
+
     const send = (obj: {}) => {
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify(obj));
@@ -54,6 +63,7 @@ export function runWebsocketServer(params: Params) {
         const { token } = msg;
         onAuthenticate({
           close: () => socket.terminate(),
+          secWSKey: secWSKey,
           token
         })
           .then(function(result) {
@@ -77,6 +87,7 @@ export function runWebsocketServer(params: Params) {
           id,
           value: serialization.decode(value),
           close: () => socket.terminate(),
+          secWSKey: secWSKey,
           send: v => events.emit("change", { kind, id, value: v })
         })
           .then(function(result) {
@@ -106,7 +117,8 @@ export function runWebsocketServer(params: Params) {
               kind,
               revision: v.revision,
               value: serialization.encode(v.value)
-            })
+            }),
+          secWSKey
         );
       }
     };

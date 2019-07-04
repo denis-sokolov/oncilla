@@ -3,16 +3,21 @@ import { Server as HttpServer } from "http";
 
 export function attachWebSockets(server: HttpServer) {
   runWebsocketServer({
-    onAuthenticate: async function(msg: any) {
-      console.log("onAuthenticate: " + JSON.stringify(msg));
+    onAuthenticate: async function({ token, secWSKey }) {
+      console.log("token: " + JSON.stringify(token));
+      console.log("secWSKey: " + secWSKey);
       return "success";
     },
-    onChangeData: async function(msg: any) {
-      console.log("onChangeData: " + JSON.stringify(msg));
+    onChangeData: async function({ kind, id, secWSKey }) {
+      console.log("kind: " + kind);
+      console.log("id: " + id);
+      console.log("secWSKey: " + secWSKey);
       return "success";
     },
-    onRequestData: function(msg: any) {
-      console.log("onRequestData: " + JSON.stringify(msg));
+    onRequestData: function({ kind, id, secWSKey }) {
+      console.log("kind: " + kind);
+      console.log("id: " + id);
+      console.log("secWSKey: " + secWSKey);
     },
     serialization: {
       encode: value => {

@@ -16,6 +16,7 @@ export type KV = K & {
 export type Params = {
   onAuthenticate?: (params: {
     close: () => void;
+    secWSKey: string;
     token: string;
   }) => Promise<"success" | "failure">;
   onChangeData: (params: {
@@ -24,12 +25,14 @@ export type Params = {
     id: string;
     close: () => void;
     send: (v: ValueContainer) => void;
+    secWSKey: string;
     value: unknown;
   }) => Promise<"success" | "conflict">;
   onRequestData: (params: {
     kind: string;
     id: string;
     close: () => void;
+    secWSKey: string;
     send: (v: ValueContainer) => void;
   }) => void;
   serialization?: Serialization;
