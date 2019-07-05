@@ -3,9 +3,19 @@ import { Server as HttpServer } from "http";
 
 export function attachWebSockets(server: HttpServer) {
   runWebsocketServer({
-    onAuthenticate: async function(msg: any) {
-      console.log("onAuthenticate: " + JSON.stringify(msg));
-      return "success";
+    auth: {
+      canRead: ({ auth, kind, id }) => {
+        console.log("canRead", auth, kind, id);
+        return true;
+      },
+      canWrite: ({ auth, kind, id }) => {
+        console.log("canWrite", auth, kind, id);
+        return true;
+      },
+      parseToken: async token => {
+        console.log("parseToken", token);
+        return "john";
+      }
     },
     onChangeData: async function(msg: any) {
       console.log("onChangeData: " + JSON.stringify(msg));
