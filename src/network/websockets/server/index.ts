@@ -112,7 +112,19 @@ export function runWebsocketServer(params: Params) {
     };
 
     socket.on("message", function(incomingBytes) {
-      const msg = JSON.parse(incomingBytes.toString());
+      function attempt<T>(f: () => T): T | undefined {
+        try {
+          return f();
+        } catch (err) {
+          return undefined;
+        }
+      }
+      const msg = attempt(() => JSON.parse(incomingBytes.toString()));
+      if (!msg) {
+        console.warn("Received invalid message format");
+        socket.terminate();
+        return;
+      }
       const action = msg.action;
       const handler = handlers[action];
       if (!handler) return console.warn("Unrecognized message", msg);
