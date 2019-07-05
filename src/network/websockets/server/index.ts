@@ -36,10 +36,12 @@ export function runWebsocketServer(params: Params) {
     });
   }
 
-  const server = new WebSocket.Server({
-    port: params.port,
-    server: params.server
-  });
+  const server =
+    params._ws ||
+    new WebSocket.Server({
+      port: params.port,
+      server: params.server
+    });
 
   server.on("connection", function(socket) {
     const send = (obj: {}) => {
