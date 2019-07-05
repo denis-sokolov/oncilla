@@ -3,8 +3,8 @@ import WebSocket from "ws";
 import { jsonSerialization } from "../serialization";
 import { stringy, K, KV, Params, ValueContainer } from "./types";
 
-export function runWebsocketServer(params: Params) {
-  const { onAuthenticate, onChangeData, onRequestData } = params;
+export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
+  const { auth, onChangeData, onRequestData } = params;
   const serialization = params.serialization || jsonSerialization;
 
   const events = new NanoEvents<{ change: KV }>();
@@ -44,6 +44,10 @@ export function runWebsocketServer(params: Params) {
     });
 
   server.on("connection", function(socket) {
+    let authDetails: Promise<AuthDetails | undefined> = Promise.resolve(
+      undefined
+    );
+
     const send = (obj: {}) => {
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify(obj));
@@ -52,27 +56,17 @@ export function runWebsocketServer(params: Params) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       auth: msg => {
-        if (!onAuthenticate) throw new Error("Unexpected auth message");
         const { token } = msg;
-        onAuthenticate({
-          close: () => socket.terminate(),
-          token
-        })
-          .then(function(result) {
-            send({
-              action: "authResult",
-              result: result
-            });
-          })
-          .catch(function() {
-            send({
-              action: "authResult",
-              result: "internalError"
-            });
-          });
+        if (!auth) throw new Error("Unexpected auth message");
+        authDetails = auth.parseToken(token).catch(() => undefined);
       },
-      push: msg => {
+      push: async msg => {
         const { kind, id, lastSeenRevision, value } = msg;
+        if (auth) {
+          const details = await authDetails;
+          if (!details) return;
+          if (!auth.canWrite({ auth: details, kind, id })) return;
+        }
         onChangeData({
           kind,
           lastSeenRevision,
@@ -101,14 +95,20 @@ export function runWebsocketServer(params: Params) {
         getAndObserve(
           { kind, id },
           () => socket.terminate(),
-          v =>
+          async v => {
+            if (auth) {
+              const details = await authDetails;
+              if (!details) return;
+              if (!auth.canRead({ auth: details, kind, id })) return;
+            }
             send({
               action: "update",
               id,
               kind,
               revision: v.revision,
               value: serialization.encode(v.value)
-            })
+            });
+          }
         );
       }
     };

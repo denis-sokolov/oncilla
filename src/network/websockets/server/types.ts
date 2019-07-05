@@ -13,11 +13,20 @@ export type KV = K & {
   value: ValueContainer;
 };
 
-export type Params = {
-  onAuthenticate?: (params: {
-    close: () => void;
-    token: string;
-  }) => Promise<"success" | "failure">;
+export type Params<AuthDetails> = {
+  auth?: {
+    canRead: (params: {
+      auth: AuthDetails;
+      kind: string;
+      id: string;
+    }) => boolean;
+    canWrite: (params: {
+      auth: AuthDetails;
+      kind: string;
+      id: string;
+    }) => boolean;
+    parseToken: (token: string) => Promise<AuthDetails>;
+  };
   onChangeData: (params: {
     kind: string;
     lastSeenRevision: string;
