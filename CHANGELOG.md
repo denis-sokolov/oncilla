@@ -1,3 +1,8 @@
+# 3.0.0
+
+- Breaking: WebSocket server renames onAuthenticate into auth key.
+- Ability to forbid clients from reading or writing some items.
+
 # 2.4.0
 
 - Close function in onAuthenticate.
