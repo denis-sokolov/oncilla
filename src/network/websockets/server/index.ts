@@ -58,7 +58,11 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       auth: msg => {
         const { token } = msg;
         if (!auth) throw new Error("Unexpected auth message");
-        authDetails = auth.parseToken(token).catch(() => undefined);
+        authDetails = auth
+          .parseToken(token, {
+            close: () => socket.terminate()
+          })
+          .catch(() => undefined);
       },
       push: async msg => {
         const { kind, id, lastSeenRevision, value } = msg;

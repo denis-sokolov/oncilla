@@ -25,7 +25,12 @@ export type Params<AuthDetails> = {
       kind: string;
       id: string;
     }) => boolean;
-    parseToken: (token: string) => Promise<AuthDetails>;
+    parseToken: (
+      token: string,
+      params: {
+        close: () => void;
+      }
+    ) => Promise<AuthDetails>;
   };
   onChangeData: (params: {
     kind: string;
