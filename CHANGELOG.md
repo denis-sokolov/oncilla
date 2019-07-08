@@ -1,3 +1,7 @@
+# 3.1.0
+
+- close helper in parseToken.
+
 # 3.0.0
 
 - Breaking: WebSocket server renames onAuthenticate into auth key.
