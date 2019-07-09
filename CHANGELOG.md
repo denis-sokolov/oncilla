@@ -1,3 +1,7 @@
+# 4.0.0
+
+- Support auth message in websocket client
+
 # 3.1.0
 
 - close helper in parseToken.
