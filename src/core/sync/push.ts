@@ -106,7 +106,7 @@ export function makePush<Domain>(params: Params<Domain>) {
   }
 
   const run = makeThrottled<keyof Domain>(performPush);
-  return async function<K extends keyof Domain>(
+  return function<K extends keyof Domain>(
     kind: K,
     id: string,
     delta: (prev: Domain[K]) => Domain[K]
