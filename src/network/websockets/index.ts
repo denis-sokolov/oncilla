@@ -10,58 +10,69 @@ type Params = {
 export * from "./memoryServer";
 export { runWebsocketServer } from "./server";
 
-export function makeWsProtocolAdapter(params: Params): NetworkAdapter<any> {
+export function makeWsProtocolAdapter(
+  params: Params
+): { adapter: NetworkAdapter<any>; auth: (token: string) => void } {
   const { url } = params;
   const serialization = params.serialization || jsonSerialization;
-  return function({ onChange, onConnectivityChange, onError, onPushResult }) {
-    const socket = new ReconnectingWebSocket(url);
-    socket.onopen = () => onConnectivityChange("online");
-    socket.onclose = () => onConnectivityChange("offline");
-    socket.onerror = () =>
-      onError(
-        new Error(
-          "WebSocket error. We can’t retrieve details about the error because the browser does not provide them for security reasons."
-        )
-      );
+  const socket = new ReconnectingWebSocket(url);
+  const send = (input: {}) => {
+    socket.send(JSON.stringify(input));
+  };
 
-    const handlers: { [action: string]: (msg: any) => void } = {
-      ping: () => {},
-      pushResult: (msg: any) => onPushResult(msg.pushId, msg.result),
-      update: (msg: any) =>
-        onChange({
-          kind: msg.kind,
-          id: msg.id,
-          revision: msg.revision,
-          value: serialization.decode(msg.value)
-        })
-    };
-    socket.onmessage = function(event) {
-      const msg = JSON.parse(event.data);
-      const action = msg.action;
-      if (!action) return console.warn(`Unrecognized message`, msg);
-      const handler = handlers[action];
-      if (!handler) return console.warn(`Unrecognized message`, msg);
-      handler(msg);
-    };
+  return {
+    adapter: function({
+      onChange,
+      onConnectivityChange,
+      onError,
+      onPushResult
+    }) {
+      socket.onopen = () => onConnectivityChange("online");
+      socket.onclose = () => onConnectivityChange("offline");
+      socket.onerror = () =>
+        onError(
+          new Error(
+            "WebSocket error. We can’t retrieve details about the error because the browser does not provide them for security reasons."
+          )
+        );
 
-    const send = (input: {}) => {
-      socket.send(JSON.stringify(input));
-    };
-    return {
-      getAndObserve: (kind, id) => {
-        send({ action: "subscribe", kind, id });
-        return () => {};
-      },
-      push: async ({ kind, id, pushId, lastSeenRevision, value }) => {
-        send({
-          action: "push",
-          kind,
-          id,
-          pushId,
-          lastSeenRevision,
-          value: serialization.encode(value)
-        });
-      }
-    };
+      const handlers: { [action: string]: (msg: any) => void } = {
+        ping: () => {},
+        pushResult: (msg: any) => onPushResult(msg.pushId, msg.result),
+        update: (msg: any) =>
+          onChange({
+            kind: msg.kind,
+            id: msg.id,
+            revision: msg.revision,
+            value: serialization.decode(msg.value)
+          })
+      };
+      socket.onmessage = function(event) {
+        const msg = JSON.parse(event.data);
+        const action = msg.action;
+        if (!action) return console.warn(`Unrecognized message`, msg);
+        const handler = handlers[action];
+        if (!handler) return console.warn(`Unrecognized message`, msg);
+        handler(msg);
+      };
+
+      return {
+        getAndObserve: (kind, id) => {
+          send({ action: "subscribe", kind, id });
+          return () => {};
+        },
+        push: async ({ kind, id, pushId, lastSeenRevision, value }) => {
+          send({
+            action: "push",
+            kind,
+            id,
+            pushId,
+            lastSeenRevision,
+            value: serialization.encode(value)
+          });
+        }
+      };
+    },
+    auth: token => send({ action: "auth", token })
   };
 }
