@@ -61,7 +61,7 @@ export function makeWsProtocolAdapter(
           send({ action: "subscribe", kind, id });
           return () => {};
         },
-        push: async ({ kind, id, pushId, lastSeenRevision, value }) => {
+        push: ({ kind, id, pushId, lastSeenRevision, value }) => {
           send({
             action: "push",
             kind,
