@@ -53,6 +53,22 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       socket.send(JSON.stringify(obj));
     };
 
+    let preAuthMessageQueue: string[] = [];
+
+    const processQueue = () => {
+      preAuthMessageQueue.forEach(handleMsg);
+      preAuthMessageQueue = [];
+    };
+
+    const addToQueue = (msg: any) => {
+      if (preAuthMessageQueue.length > 100) {
+        console.warn("Cache Size exceeded maximum allowed length");
+        socket.terminate();
+        return;
+      }
+      preAuthMessageQueue.push(msg);
+    };
+
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       auth: msg => {
@@ -63,12 +79,16 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
             close: () => socket.terminate()
           })
           .catch(() => undefined);
+        processQueue();
       },
       push: async msg => {
         const { kind, id, lastSeenRevision, value } = msg;
         if (auth) {
           const details = await authDetails;
-          if (!details) return;
+          if (!details) {
+            addToQueue(msg);
+            return;
+          }
           if (!auth.canWrite({ auth: details, kind, id })) return;
         }
         onChangeData({
@@ -102,7 +122,10 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           async v => {
             if (auth) {
               const details = await authDetails;
-              if (!details) return;
+              if (!details) {
+                addToQueue(msg);
+                return;
+              }
               if (!auth.canRead({ auth: details, kind, id })) return;
             }
             send({
@@ -117,7 +140,14 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       }
     };
 
-    socket.on("message", function(incomingBytes) {
+    const handleMsg = (msg: any) => {
+      const action = msg.action;
+      const handler = handlers[action];
+      if (!handler) return console.warn("Unrecognized message", msg);
+      handler(msg);
+    };
+
+    socket.on("message", function incoming(data) {
       function attempt<T>(f: () => T): T | undefined {
         try {
           return f();
@@ -125,16 +155,13 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           return undefined;
         }
       }
-      const msg = attempt(() => JSON.parse(incomingBytes.toString()));
+      const msg = attempt(() => JSON.parse(data.toString()));
       if (!msg) {
         console.warn("Received invalid message format");
         socket.terminate();
         return;
       }
-      const action = msg.action;
-      const handler = handlers[action];
-      if (!handler) return console.warn("Unrecognized message", msg);
-      handler(msg);
+      handleMsg(msg);
     });
   });
 }
