@@ -95,7 +95,7 @@ test.cb("websocket server queues messages before the first auth", t => {
   }, 10);
 });
 
-test.cb.failing(
+test.cb(
   "websocket server queues messages before the first auth with instant arrival",
   t => {
     const ws = makeWsMock();
