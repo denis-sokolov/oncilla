@@ -1,3 +1,7 @@
+# 4.1.0
+
+- Pre-auth message queue on the server.
+
 # 4.0.0
 
 - Support auth message in websocket client
