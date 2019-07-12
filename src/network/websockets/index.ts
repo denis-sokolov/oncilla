@@ -5,6 +5,7 @@ import { Serialization, jsonSerialization } from "./serialization";
 type Params = {
   serialization?: Serialization;
   url: string;
+  _socket?: ReconnectingWebSocket;
 };
 
 export * from "./memoryServer";
@@ -13,9 +14,9 @@ export { runWebsocketServer } from "./server";
 export function makeWsProtocolAdapter(
   params: Params
 ): { adapter: NetworkAdapter<any>; auth: (token: string) => void } {
-  const { url } = params;
+  const { url, _socket } = params;
   const serialization = params.serialization || jsonSerialization;
-  const socket = new ReconnectingWebSocket(url);
+  const socket = _socket || new ReconnectingWebSocket(url);
 
   let pingTimer: NodeJS.Timer;
   let timeoutTimer: NodeJS.Timer;
