@@ -1,6 +1,7 @@
 import NanoEvents from "nanoevents";
 import WebSocket from "ws";
 import { jsonSerialization } from "../serialization";
+import { makeAuthQueue } from "./authQueue";
 import { stringy, K, KV, Params, ValueContainer } from "./types";
 
 export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
@@ -44,29 +45,13 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     });
 
   server.on("connection", function(socket) {
-    let authDetails: Promise<AuthDetails | undefined> = Promise.resolve(
-      undefined
-    );
+    const authQueue = makeAuthQueue<AuthDetails>({
+      onTerminate: () => socket.terminate()
+    });
 
     const send = (obj: {}) => {
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify(obj));
-    };
-
-    let preAuthMessageQueue: string[] = [];
-
-    const processQueue = () => {
-      preAuthMessageQueue.forEach(handleMsg);
-      preAuthMessageQueue = [];
-    };
-
-    const addToQueue = (msg: any) => {
-      if (preAuthMessageQueue.length > 100) {
-        console.warn("Cache Size exceeded maximum allowed length");
-        socket.terminate();
-        return;
-      }
-      preAuthMessageQueue.push(msg);
     };
 
     const handlers: { [action: string]: (msg: any) => void } = {
@@ -74,21 +59,16 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       auth: msg => {
         const { token } = msg;
         if (!auth) throw new Error("Unexpected auth message");
-        authDetails = auth
-          .parseToken(token, {
-            close: () => socket.terminate()
-          })
-          .catch(() => undefined);
-        processQueue();
+        authQueue.newAuthIncoming(
+          auth
+            .parseToken(token, { close: () => socket.terminate() })
+            .catch(() => undefined)
+        );
       },
       push: async msg => {
         const { kind, id, lastSeenRevision, value } = msg;
         if (auth) {
-          const details = await authDetails;
-          if (!details) {
-            addToQueue(msg);
-            return;
-          }
+          const details = await authQueue.details();
           if (!auth.canWrite({ auth: details, kind, id })) return;
         }
         onChangeData({
@@ -121,11 +101,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           () => socket.terminate(),
           async v => {
             if (auth) {
-              const details = await authDetails;
-              if (!details) {
-                addToQueue(msg);
-                return;
-              }
+              const details = await authQueue.details();
               if (!auth.canRead({ auth: details, kind, id })) return;
             }
             send({
