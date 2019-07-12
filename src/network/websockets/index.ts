@@ -34,6 +34,8 @@ export function makeWsProtocolAdapter(
     socket.send(JSON.stringify(input));
   };
 
+  const messagesOnEveryReconnect: object[] = [];
+
   return {
     adapter: function({
       onChange,
@@ -41,7 +43,10 @@ export function makeWsProtocolAdapter(
       onError,
       onPushResult
     }) {
-      socket.onopen = () => onConnectivityChange("online");
+      socket.onopen = () => {
+        onConnectivityChange("online");
+        messagesOnEveryReconnect.forEach(send);
+      };
       socket.onclose = () => onConnectivityChange("offline");
       socket.onerror = () =>
         onError(
@@ -73,7 +78,9 @@ export function makeWsProtocolAdapter(
 
       return {
         getAndObserve: (kind, id) => {
-          send({ action: "subscribe", kind, id });
+          const msg = { action: "subscribe", kind, id };
+          if (socket.readyState === 1) send(msg);
+          messagesOnEveryReconnect.push(msg);
           return () => {};
         },
         push: ({ kind, id, pushId, lastSeenRevision, value }) => {
