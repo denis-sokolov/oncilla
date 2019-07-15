@@ -16,6 +16,19 @@ export function makeWsProtocolAdapter(
   const { url } = params;
   const serialization = params.serialization || jsonSerialization;
   const socket = new ReconnectingWebSocket(url);
+
+  let pingTimer: NodeJS.Timer;
+  let timeoutTimer: NodeJS.Timer;
+  function restartPingMachine() {
+    clearTimeout(pingTimer);
+    clearTimeout(timeoutTimer);
+    pingTimer = setTimeout(function() {
+      send({ action: "ping" });
+      timeoutTimer = setTimeout(() => socket.reconnect(), 15000);
+    }, 15000);
+  }
+  restartPingMachine();
+
   const send = (input: {}) => {
     socket.send(JSON.stringify(input));
   };
@@ -37,7 +50,7 @@ export function makeWsProtocolAdapter(
         );
 
       const handlers: { [action: string]: (msg: any) => void } = {
-        ping: () => {},
+        pong: () => {},
         pushResult: (msg: any) => onPushResult(msg.pushId, msg.result),
         update: (msg: any) =>
           onChange({
@@ -48,6 +61,7 @@ export function makeWsProtocolAdapter(
           })
       };
       socket.onmessage = function(event) {
+        restartPingMachine();
         const msg = JSON.parse(event.data);
         const action = msg.action;
         if (!action) return console.warn(`Unrecognized message`, msg);
