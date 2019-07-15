@@ -21,15 +21,15 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     close: () => void,
     onData: (value: ValueContainer) => void
   ) {
-    events.on("change", eventKV => {
-      if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
-    });
     if (listeningTo.includes(stringy(key))) {
       const last = latestCopies[stringy(key)];
       if (last) onData(last);
       return;
     }
     listeningTo.push(stringy(key));
+    events.on("change", eventKV => {
+      if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
+    });
     onRequestData({
       ...key,
       close: close,
