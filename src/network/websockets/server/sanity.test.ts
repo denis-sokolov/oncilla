@@ -5,7 +5,7 @@ import { makeWsMock } from "./ws-mock";
 test.cb("websocket server responds to ping", t => {
   const ws = makeWsMock();
   runWebsocketServer({
-    onChangeData: async () => "success",
+    onChangeData: async () => ({ newRevision: "2", newValue: "" }),
     onRequestData: () => {},
     _ws: ws.server
   });
@@ -18,7 +18,7 @@ test.cb("websocket server responds to ping", t => {
 test.cb("websocket server retrieves data", t => {
   const ws = makeWsMock();
   runWebsocketServer({
-    onChangeData: async () => "success",
+    onChangeData: async () => ({ newRevision: "2", newValue: "" }),
     onRequestData: ({ id, kind, send }) => {
       t.is(id, "1");
       t.is(kind, "tasks");
@@ -41,29 +41,22 @@ test.cb("websocket server retrieves data", t => {
 test.cb("websocket server writes data", t => {
   const ws = makeWsMock();
   runWebsocketServer({
-    onChangeData: async ({ id, kind, send, value }) => {
+    onChangeData: async ({ id, kind, value }) => {
       t.is(id, "1");
       t.is(kind, "tasks");
-      send({ revision: "2", value });
-      return "success";
+      return { newRevision: "2", newValue: value };
     },
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
     _ws: ws.server
   });
-  let seenUpdate = false;
   const client = ws.client(msg => {
-    if (msg.action === "update" && msg.revision === "2") {
-      seenUpdate = true;
-      t.is(msg.kind, "tasks");
-      t.is(msg.id, "1");
-      t.is(msg.value, JSON.stringify("Buy cocoa"));
-    }
     if (msg.action === "pushResult") {
-      t.true(seenUpdate);
       t.is(msg.pushId, "p1");
       t.is(msg.result, "success");
+      t.is(msg.newRevision, "2");
+      t.is(msg.newValue, JSON.stringify("Buy cocoa"));
       t.end();
     }
   });

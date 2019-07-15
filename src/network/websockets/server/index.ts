@@ -85,15 +85,23 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           lastSeenRevision,
           id,
           value: serialization.decode(value),
-          close: () => socket.terminate(),
-          send: v => events.emit("change", { kind, id, value: v })
+          close: () => socket.terminate()
         })
           .then(function(result) {
-            send({
-              action: "pushResult",
-              pushId: msg.pushId,
-              result: result
-            });
+            if (result === "conflict")
+              send({
+                action: "pushResult",
+                pushId: msg.pushId,
+                result: result
+              });
+            else
+              send({
+                action: "pushResult",
+                pushId: msg.pushId,
+                result: "success",
+                newRevision: result.newRevision,
+                newValue: serialization.encode(result.newValue)
+              });
           })
           .catch(function() {
             send({

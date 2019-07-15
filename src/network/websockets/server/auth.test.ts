@@ -23,17 +23,14 @@ test.cb("websocket server allows to read and write when auth allows", t => {
         return "john";
       }
     },
-    onChangeData: async ({ send, value }) => {
-      send({ revision: "2", value });
-      return "success";
-    },
+    onChangeData: async ({ value }) => ({ newRevision: "2", newValue: value }),
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
     _ws: ws.server
   });
   const client = ws.client(msg => {
-    if (msg.action === "update" && msg.revision === "2") {
+    if (msg.action === "pushResult" && msg.newRevision === "2") {
       t.end();
     }
   });
@@ -57,7 +54,7 @@ test.cb("websocket server forbids to read without login", t => {
       canWrite: () => true,
       parseToken: async () => "john"
     },
-    onChangeData: async () => "success",
+    onChangeData: async () => ({ newValue: {}, newRevision: "2" }),
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
@@ -85,7 +82,7 @@ test.cb("websocket server forbids to read when forbidden", t => {
       canWrite: () => true,
       parseToken: async () => "john"
     },
-    onChangeData: async () => "success",
+    onChangeData: async () => ({ newValue: {}, newRevision: "2" }),
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
@@ -114,17 +111,14 @@ test.cb("websocket server forbids to write when forbidden", t => {
       },
       parseToken: async () => "john"
     },
-    onChangeData: async ({ send, value }) => {
-      send({ revision: "2", value });
-      return "success";
-    },
+    onChangeData: async ({ value }) => ({ newValue: value, newRevision: "2" }),
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
     _ws: ws.server
   });
   const client = ws.client(msg => {
-    if (msg.action === "update" && msg.revision === "2") {
+    if (msg.action === "pushResult" && msg.newRevision === "2") {
       t.fail("Should not have allowed an update, it’s forbidden");
     }
   });

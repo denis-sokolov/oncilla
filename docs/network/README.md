@@ -51,10 +51,10 @@ runWebsocketServer({
       throw err;
     }
 
-    // It is important to send an updated value before returning success,
-    // otherwise the UI will display the previous version.
-    send(curr);
-    return "success";
+    return {
+      newRevision: curr.revision,
+      newValue: curr.value
+    };
   },
   onRequestData: async function({ kind, id, send }) {
     // getItem is your function that returns { revision, value } object

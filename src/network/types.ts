@@ -9,7 +9,10 @@ export type NetworkAdapter<Domain> = (params: {
   }) => void;
   onConnectivityChange: (value: Connectivity) => void;
   onError: (error: Error) => void;
-  onPushResult: (pushId: string, result: PushResult) => void;
+  onPushResult: <K extends keyof Domain>(
+    pushId: string,
+    result: PushResult<Domain[K]>
+  ) => void;
 }) => {
   getAndObserve: <K extends keyof Domain>(kind: K, id: string) => () => void;
   push: <K extends keyof Domain>(params: {
@@ -21,4 +24,7 @@ export type NetworkAdapter<Domain> = (params: {
   }) => void;
 };
 
-export type PushResult = "success" | "conflict" | "internalError";
+export type PushResult<Kind> =
+  | { newRevision: string; newValue: Kind }
+  | "conflict"
+  | "internalError";
