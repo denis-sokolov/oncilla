@@ -5,6 +5,7 @@ import { Serialization, jsonSerialization } from "./serialization";
 type Params = {
   serialization?: Serialization;
   url: string;
+  _socket?: ReconnectingWebSocket;
 };
 
 export * from "./memoryServer";
@@ -13,9 +14,9 @@ export { runWebsocketServer } from "./server";
 export function makeWsProtocolAdapter(
   params: Params
 ): { adapter: NetworkAdapter<any>; auth: (token: string) => void } {
-  const { url } = params;
+  const { url, _socket } = params;
   const serialization = params.serialization || jsonSerialization;
-  const socket = new ReconnectingWebSocket(url);
+  const socket = _socket || new ReconnectingWebSocket(url);
 
   let pingTimer: NodeJS.Timer;
   let timeoutTimer: NodeJS.Timer;
@@ -33,6 +34,8 @@ export function makeWsProtocolAdapter(
     socket.send(JSON.stringify(input));
   };
 
+  const messagesOnEveryReconnect: { [k: string]: any }[] = [];
+
   return {
     adapter: function({
       onChange,
@@ -40,7 +43,10 @@ export function makeWsProtocolAdapter(
       onError,
       onPushResult
     }) {
-      socket.onopen = () => onConnectivityChange("online");
+      socket.onopen = () => {
+        onConnectivityChange("online");
+        messagesOnEveryReconnect.forEach(send);
+      };
       socket.onclose = () => onConnectivityChange("offline");
       socket.onerror = () =>
         onError(
@@ -72,7 +78,9 @@ export function makeWsProtocolAdapter(
 
       return {
         getAndObserve: (kind, id) => {
-          send({ action: "subscribe", kind, id });
+          const msg = { action: "subscribe", kind, id };
+          if (socket.readyState === 1) send(msg);
+          messagesOnEveryReconnect.push(msg);
           return () => {};
         },
         push: ({ kind, id, pushId, lastSeenRevision, value }) => {
@@ -87,6 +95,14 @@ export function makeWsProtocolAdapter(
         }
       };
     },
-    auth: token => send({ action: "auth", token })
+    auth: token => {
+      const msg = { action: "auth", token };
+      const currentIndex = messagesOnEveryReconnect.findIndex(
+        m => m.action === "auth"
+      );
+      if (currentIndex === -1) messagesOnEveryReconnect.push(msg);
+      else messagesOnEveryReconnect[currentIndex] = msg;
+      if (socket.readyState === 1) send(msg);
+    }
   };
 }
