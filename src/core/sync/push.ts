@@ -29,13 +29,20 @@ export function makePush<Domain>(params: Params<Domain>) {
     id: string;
     deltas: ((prev: Domain[K]) => Domain[K])[];
     retriesRemaining: number;
+    previousConflictOnRevision?: string;
   }): Promise<void> {
     if (shouldCrashWrites()) {
       await sleep(2000);
       throw new Error("Simulate write failure");
     }
 
-    const { kind, id, deltas, retriesRemaining } = params;
+    const {
+      kind,
+      id,
+      deltas,
+      previousConflictOnRevision,
+      retriesRemaining
+    } = params;
 
     const curr = canonData[kind][id];
     if (!curr)
@@ -54,10 +61,24 @@ export function makePush<Domain>(params: Params<Domain>) {
       value
     });
     if (result === "conflict") {
+      if (
+        previousConflictOnRevision &&
+        curr.revision === previousConflictOnRevision
+      ) {
+        throw new Error(
+          `The revision ${
+            curr.revision
+          } is not changing and the server keeps responding with a conflict. Check whether the server is correctly incrementing the revision and whether the client is subscribed to updates on ${kind} ${id}.`
+        );
+      }
       // Server and the connection are healthy, so reset the retries
       // We can resolve conflicts infinitely, it’s the internal errors that
       // we need to limit retries.
-      return await attemptPush({ ...params, retriesRemaining: defaultRetries });
+      return await attemptPush({
+        ...params,
+        previousConflictOnRevision: curr.revision,
+        retriesRemaining: defaultRetries
+      });
     }
     if (result === "internalError") {
       // As many other pieces of this code, the retry logic needs
