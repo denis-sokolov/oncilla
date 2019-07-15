@@ -56,6 +56,9 @@ export function makeWsProtocolAdapter(
         );
 
       const handlers: { [action: string]: (msg: any) => void } = {
+        clientError: (msg: any) => {
+          onError(new Error(msg.message));
+        },
         pong: () => {},
         pushResult: (msg: any) => onPushResult(msg.pushId, msg.result),
         update: (msg: any) =>

@@ -69,7 +69,13 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
         const { kind, id, lastSeenRevision, value } = msg;
         if (auth) {
           const details = await authQueue.details();
-          if (!auth.canWrite({ auth: details, kind, id })) return;
+          if (!auth.canWrite({ auth: details, kind, id })) {
+            send({
+              action: "clientError",
+              message: `Tried to write ${kind} ${id} without permission`
+            });
+            return;
+          }
         }
         onChangeData({
           kind,
@@ -102,7 +108,13 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           async v => {
             if (auth) {
               const details = await authQueue.details();
-              if (!auth.canRead({ auth: details, kind, id })) return;
+              if (!auth.canRead({ auth: details, kind, id })) {
+                send({
+                  action: "clientError",
+                  message: `Tried to read ${kind} ${id} without permission`
+                });
+                return;
+              }
             }
             send({
               action: "update",
