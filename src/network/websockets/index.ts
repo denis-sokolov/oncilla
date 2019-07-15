@@ -34,7 +34,7 @@ export function makeWsProtocolAdapter(
     socket.send(JSON.stringify(input));
   };
 
-  const messagesOnEveryReconnect: object[] = [];
+  const messagesOnEveryReconnect: { [k: string]: any }[] = [];
 
   return {
     adapter: function({
@@ -95,6 +95,14 @@ export function makeWsProtocolAdapter(
         }
       };
     },
-    auth: token => send({ action: "auth", token })
+    auth: token => {
+      const msg = { action: "auth", token };
+      const currentIndex = messagesOnEveryReconnect.findIndex(
+        m => m.action === "auth"
+      );
+      if (currentIndex === -1) messagesOnEveryReconnect.push(msg);
+      else messagesOnEveryReconnect[currentIndex] = msg;
+      if (socket.readyState === 1) send(msg);
+    }
   };
 }

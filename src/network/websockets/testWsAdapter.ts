@@ -10,10 +10,11 @@ export default function testWsAdapter() {
   };
   const socket = partialSocket as ReconnectingWebSocket;
   const sock = socket as any;
-  const adapter = makeWsProtocolAdapter({
+  const wsp = makeWsProtocolAdapter({
     url: "",
     _socket: socket
-  }).adapter({
+  });
+  const adapter = wsp.adapter({
     onChange: () => {},
     onConnectivityChange: () => {},
     onError: () => {},
@@ -21,6 +22,7 @@ export default function testWsAdapter() {
   });
   return {
     adapter,
+    auth: wsp.auth,
     disconnect: () => {
       socket.onclose!({} as any);
       sock.readyState = 0;

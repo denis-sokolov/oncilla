@@ -21,3 +21,16 @@ test("ws adapter resends subscribe message on reconnect", t => {
     .length;
   t.true(subscribesAfter > subscribesBefore);
 });
+
+test("ws adapter resends one auth message on reconnect", t => {
+  const { auth, connect, disconnect, sentMessages } = testWsAdapter();
+  connect();
+  auth("token-1");
+  auth("token-2");
+  auth("token-3");
+  disconnect();
+  const authsBefore = sentMessages.filter(msg => msg.action === "auth").length;
+  connect();
+  const authsAfter = sentMessages.filter(msg => msg.action === "auth").length;
+  t.is(authsAfter, authsBefore + 1);
+});
