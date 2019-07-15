@@ -1,3 +1,13 @@
+# 5.0.0
+
+- Breaking: pushResult sends inline update
+- New clientError message
+- WebSocket client:
+  - Send pings periodically and force reconnect if needed
+  - Resend state messages on reconnect (subscribe, auth)
+- Queue messages behind auth
+- Subscribe message is idempotent in the WebSocket server
+
 # 4.1.0
 
 - Pre-auth message queue on the server.
