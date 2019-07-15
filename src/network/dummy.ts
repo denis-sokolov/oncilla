@@ -46,7 +46,7 @@ export function makeDummyAdapter<Domain>(
         setTimeout(() => {
           data[kind][id] = value;
           onChange({ kind, id, revision: "dummy", value });
-          onPushResult(pushId, "success");
+          onPushResult(pushId, { newRevision: "dummy", newValue: value });
           locked = false;
         }, 2000);
       }

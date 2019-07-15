@@ -51,7 +51,14 @@ export function makeWsProtocolAdapter(
 
       const handlers: { [action: string]: (msg: any) => void } = {
         pong: () => {},
-        pushResult: (msg: any) => onPushResult(msg.pushId, msg.result),
+        pushResult: (msg: any) => {
+          if (msg.result === "success")
+            onPushResult(msg.pushId, {
+              newRevision: msg.newRevision,
+              newValue: serialization.decode(msg.newValue)
+            });
+          else onPushResult(msg.pushId, msg.result);
+        },
         update: (msg: any) =>
           onChange({
             kind: msg.kind,

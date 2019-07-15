@@ -58,7 +58,7 @@ export function sync<Domain>(params: Params<Domain>) {
   }
 
   const pushesInFlight: {
-    [id: string]: (result: PushResult) => void;
+    [id: string]: (result: PushResult<any>) => void;
   } = {};
 
   const net = network({
@@ -84,10 +84,16 @@ export function sync<Domain>(params: Params<Domain>) {
       throw err;
     },
     onNetPush: params =>
-      new Promise(resolve => {
+      new Promise<PushResult<Domain[any]>>(resolve => {
         pushesInFlight[params.pushId] = resolve;
         net.push(params);
       }),
+    onUpdate: ({ kind, id, newValue, newRevision }) => {
+      canonData[kind][id] = {
+        revision: newRevision,
+        value: newValue
+      };
+    },
     shouldCrashWrites
   });
 

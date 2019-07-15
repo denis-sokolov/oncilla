@@ -15,12 +15,18 @@ type Params<Domain> = {
     lastSeenRevision: string;
     pushId: string;
     value: Domain[K];
-  }) => Promise<PushResult>;
+  }) => Promise<PushResult<Domain[K]>>;
+  onUpdate: <K extends keyof Domain>(params: {
+    kind: K;
+    id: string;
+    newRevision: string;
+    newValue: Domain[K];
+  }) => void;
   shouldCrashWrites: () => boolean;
 };
 
 export function makePush<Domain>(params: Params<Domain>) {
-  const { canonData, onError, onNetPush, shouldCrashWrites } = params;
+  const { canonData, onError, onNetPush, onUpdate, shouldCrashWrites } = params;
 
   let pushCounter = 0;
 
@@ -70,7 +76,11 @@ export function makePush<Domain>(params: Params<Domain>) {
         retriesRemaining: retriesRemaining - 1
       });
     }
-    if (result !== "success") throw new Error(`Unexpected result ${result}`);
+    if (typeof result === "object") {
+      onUpdate({ kind, id, ...result });
+      return;
+    }
+    throw new Error(`Unexpected result ${result}`);
   }
 
   const queuedTasks: {

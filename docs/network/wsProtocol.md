@@ -95,23 +95,25 @@ Upon receiving a push message, the server should validate whether the lastSeenRe
 
 If the lastSeenRevision is valid, the server should save the new revision of the entity.
 
-To be able to provide optimistic UI updates with real-time server-side updates, the client needs to know when a particular push has been accepted by the server. In order to do that, for every received push message the server must send a `pushResult` message to the client with `pushId` and `result` fields.
+To be able to provide optimistic UI updates with real-time server-side updates, the client needs to know when a particular push has been accepted by the server. In order to do that, for every received push message the server must send a `pushResult` message to the client with `pushId`, `result`, and possibly `newRevision` and `newValue` fields.
 
 **pushId** A verbatim string copy of the field in the client’s push message.
 
 **result** If the write succeeded the `result` field must be `"success"`, if the write was rejected because lastSeenRevision was out of date, the field must be `"conflict"`, and if the write was rejected because of internal errors, the field must be `"internalError"`.
 
+**newRevision** If the write succeeded the `newRevision` contains the newest revision number of the entity.
+
+**newValue** If the write succeeded the `newValue` contains the newest value of the entity.
+
 ```json
 {
   "action": "pushResult",
   "pushId": "",
-  "result": "success"
+  "result": "success",
+  "newRevision": "2",
+  "newValue": {}
 }
 ```
-
-A successful push operation will usually result in two messages from the server to the client: an `update` message with the newly updated entity, and a `pushResult` message with the success status of the push. The server must send the update message containing the pushed changed before sending a `pushResult` message.
-
-If the server staggers the update messages, it is fine to send the update message including more changes that the latest push, but it must still be sent before the pushResult message. If necessary, the server may artificially delay the `pushResult` message on the server for up to 5-10 seconds.
 
 ## Authentication
 

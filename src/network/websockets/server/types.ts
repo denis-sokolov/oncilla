@@ -37,9 +37,8 @@ export type Params<AuthDetails> = {
     lastSeenRevision: string;
     id: string;
     close: () => void;
-    send: (v: ValueContainer) => void;
     value: unknown;
-  }) => Promise<"success" | "conflict">;
+  }) => Promise<{ newValue: unknown; newRevision: string } | "conflict">;
   onRequestData: (params: {
     kind: string;
     id: string;

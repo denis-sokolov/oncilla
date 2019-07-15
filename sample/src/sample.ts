@@ -19,7 +19,10 @@ export function attachWebSockets(server: HttpServer) {
     },
     onChangeData: async function(msg: any) {
       console.log("onChangeData: " + JSON.stringify(msg));
-      return "success";
+      return {
+        newRevision: "",
+        newValue: {}
+      };
     },
     onRequestData: function(msg: any) {
       console.log("onRequestData: " + JSON.stringify(msg));
