@@ -127,11 +127,13 @@ Oncilla supports a first class `auth` action, designed to establish an initial/o
 The purpose of this action is to establish/re-establish authentication with the Server.
 
 The server may respond with an `authResult` message:
+
 ```json
 {
   "action": "authResult",
   "result": ""
 }
+```
 
 Oncilla is indifferent to both the authentication mechanism and value contained in the field, leaving the verification up to the server implementation. A good example of a payload of `token` is a [JWT token](https://jwt.io/).
 
