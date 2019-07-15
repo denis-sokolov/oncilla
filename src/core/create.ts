@@ -8,7 +8,12 @@ const globalWindow = typeof window === "undefined" ? ({} as Window) : window;
 export function create<Domain>(
   params: CreateParams<Domain> & { initialData: Data<Domain> }
 ): FullDB<Domain> {
-  const { initialData, network, onError } = params;
+  const { initialData, network } = params;
+  const onError =
+    params.onError ||
+    (err => {
+      throw err;
+    });
   const window = params.window || globalWindow;
 
   const debugConfig: DebugConfig = {
@@ -26,6 +31,7 @@ export function create<Domain>(
     network,
     onChange: (kind, id) => events.emit("change", [kind, id]),
     onConnectivityChange: () => events.emit("connectivity-changed", undefined),
+    onError,
     shouldCrashWrites: () => debugConfig.failingWrites
   });
 
@@ -37,11 +43,7 @@ export function create<Domain>(
     commitTransaction: push,
     onChangePendingTransactionCount: () =>
       events.emit("pending-transaction-count-changed", undefined),
-    onError:
-      onError ||
-      (err => {
-        throw err;
-      }),
+    onError,
     onRerenderKind: (kind, id) => events.emit("change", [kind, id]),
     optimisticUIEnabled: () => debugConfig.optimisticUIEnabled
   });

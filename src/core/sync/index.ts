@@ -38,6 +38,7 @@ type Params<Domain> = {
   network: NetworkAdapter<Domain>;
   onChange: (kind: keyof Domain, id: string) => void;
   onConnectivityChange: () => void;
+  onError: (err: Error) => void;
   shouldCrashWrites: () => boolean;
 };
 
@@ -47,6 +48,7 @@ export function sync<Domain>(params: Params<Domain>) {
     network,
     onChange,
     onConnectivityChange,
+    onError,
     shouldCrashWrites
   } = params;
 
@@ -67,9 +69,7 @@ export function sync<Domain>(params: Params<Domain>) {
       onChange(kind, id);
     },
     onConnectivityChange: setConnectivity,
-    onError: function(error) {
-      throw error;
-    },
+    onError,
     onPushResult: (pushId, result) => {
       if (!pushesInFlight[pushId]) return;
       pushesInFlight[pushId](result);
