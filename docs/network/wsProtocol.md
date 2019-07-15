@@ -135,6 +135,17 @@ The server may respond with an `authResult` message:
 
 Oncilla is indifferent to both the authentication mechanism and value contained in the field, leaving the verification up to the server implementation. A good example of a payload of `token` is a [JWT token](https://jwt.io/).
 
+## Errors
+
+The server may choose to provide a debugging message to the client. This message is meant for developers, and UI apps should probably crash with a user-friendly message.
+
+```json
+{
+  "type": "clientError",
+  "message": "Incorrect call to foo"
+}
+```
+
 ## Limitations
 
 Lost WebSocket messages are not handled in this version.
