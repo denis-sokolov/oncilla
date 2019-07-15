@@ -62,7 +62,10 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
         authQueue.newAuthIncoming(
           auth
             .parseToken(token, { close: () => socket.terminate() })
-            .catch(() => undefined)
+            .catch(() => {
+              socket.terminate();
+              return undefined;
+            })
         );
       },
       push: async msg => {
