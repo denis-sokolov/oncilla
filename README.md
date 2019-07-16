@@ -47,9 +47,15 @@ return (
 );
 ```
 
----
+## Alternatives
 
 Oncilla DB has been heavily inspired by PouchDB, CouchDB, and the Offline First thinking.
+
+PouchDB brings a lot of battle-tested power to the table, but it relies on the CouchDB protocol for replication. Oncilla allows you to define your own replication protocol that will fit your API, or use a small Oncilla WebSocket protocol that is easy to implement in whichever backend.
+
+Another solid option is Apollo Client 2.5 with React Apollo 3. At the time of writing React Apollo 3 is nearing the release. Although Apollo is very GraphQL-oriented, there are some features on the side that allow it to talk over non-GraphQL HTTP.
+
+---
 
 _The oncilla is a small tiger cat on the IUCN Red List._
 
