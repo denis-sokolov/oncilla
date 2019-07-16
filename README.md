@@ -1,6 +1,6 @@
 # ![Oncilla logo](docs/images/logo/combined.png)
 
-Client-side database for real-time and optimistic UI.
+Client-side database for easy to implement real-time and optimistic UI.
 
 [![ISC license](https://img.shields.io/badge/license-ISC-blue.svg?style=flat-square)](https://github.com/facebook/react/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/oncilla.svg?style=flat-square)](https://www.npmjs.com/package/oncilla) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/oncilla.svg?label=size&style=flat-square) ![Unpolished](https://img.shields.io/badge/stability-unpolished-yellow.svg?style=flat-square)
 
@@ -8,7 +8,7 @@ Oncilla DB sits between your UI logic (i.e. React components) and your server an
 
 ![Diagram: Oncilla sits between React/Vue.js/Angular and a server database](docs/images/diagram.png)
 
-**Great developer experience.** Oncilla DB takes on complexity so that your code is as simple as possible. In React components, accessing and changing the data is synchronous and almost as easy as React’s useState.
+**Great developer experience.** Oncilla DB takes on complexity so that your code is as simple as possible. In React components, accessing and changing the data is synchronous and almost as easy as React’s useState. Features like prefetching, real-time updates, optimistic UI become trivial to enable.
 
 **Great user experience.** Oncilla DB also takes on complexity so that you need not choose between your velocity and the user experience. Great user experience is the default.
 
