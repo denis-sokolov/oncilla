@@ -46,3 +46,9 @@ export type Events<Domain> = {
   "pending-transaction-count-changed": undefined;
   "connectivity-changed": undefined;
 };
+
+export type Transaction<Domain, K extends keyof Domain = keyof Domain> = {
+  kind: K;
+  id: string;
+  delta: Delta<Domain, K>;
+};

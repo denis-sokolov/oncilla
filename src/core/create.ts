@@ -1,7 +1,14 @@
 import NanoEvents from "nanoevents";
 import { optimisticUi } from "./optimisticUi";
 import { sync } from "./sync";
-import { CreateParams, Data, DebugConfig, FullDB, Events } from "./types";
+import {
+  CreateParams,
+  Data,
+  DebugConfig,
+  FullDB,
+  Events,
+  Transaction
+} from "./types";
 
 const globalWindow = typeof window === "undefined" ? ({} as Window) : window;
 
@@ -36,8 +43,8 @@ export function create<Domain>(
   });
 
   const {
+    addTransaction,
     pendingTransactionCount,
-    update,
     withPendingTransactions
   } = optimisticUi<Domain>({
     commitTransaction: push,
@@ -67,7 +74,9 @@ export function create<Domain>(
     connectivity: () =>
       debugConfig.pretendOffline ? "offline" : connectivity(),
     observe,
-    update
+    update: function(kind, id, delta) {
+      addTransaction({ kind, id, delta } as Transaction<any, any>);
+    }
   };
 
   return db;
