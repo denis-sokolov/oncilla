@@ -103,12 +103,13 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
                 newValue: serialization.encode(result.newValue)
               });
           })
-          .catch(function() {
+          .catch(function(err) {
             send({
               action: "pushResult",
               pushId: msg.pushId,
               result: "internalError"
             });
+            throw err;
           });
       },
       subscribe: msg => {
