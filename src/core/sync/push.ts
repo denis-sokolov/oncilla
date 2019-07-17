@@ -58,23 +58,22 @@ export function makePush<Domain>(params: Params<Domain>) {
 
     const value = deltas.reduce((v, delta) => delta(v), curr.value);
 
+    const lastSeenRevision = curr.revision;
     const pushId = `push-${pushCounter++}`;
     const result = await onNetPush({
       kind,
       id,
       pushId,
-      lastSeenRevision: curr.revision,
+      lastSeenRevision,
       value
     });
     if (result === "conflict") {
       if (
         previousConflictOnRevision &&
-        curr.revision === previousConflictOnRevision
+        lastSeenRevision === previousConflictOnRevision
       ) {
         throw new Error(
-          `The revision ${
-            curr.revision
-          } is not changing and the server keeps responding with a conflict. Check whether the server is correctly incrementing the revision and whether the client is subscribed to updates on ${kind} ${id}.`
+          `The revision ${lastSeenRevision} is not changing and the server keeps responding with a conflict. Check whether the server is correctly incrementing the revision and whether the client is subscribed to updates on ${kind} ${id}.`
         );
       }
       // Server and the connection are healthy, so reset the retries
@@ -82,7 +81,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       // we need to limit retries.
       return await attemptPush({
         ...params,
-        previousConflictOnRevision: curr.revision,
+        previousConflictOnRevision: lastSeenRevision,
         retriesRemaining: defaultRetries
       });
     }
