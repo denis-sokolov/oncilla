@@ -1,5 +1,5 @@
 import { PushResult } from "../../network/types";
-import { Data } from "../types";
+import { Data, Transaction } from "../types";
 import { makeThrottled } from "./throttled";
 
 const defaultRetries = 15;
@@ -136,11 +136,8 @@ export function makePush<Domain>(params: Params<Domain>) {
   }
 
   const run = makeThrottled<keyof Domain>(performPush);
-  return function<K extends keyof Domain>(
-    kind: K,
-    id: string,
-    delta: (prev: Domain[K]) => Domain[K]
-  ) {
+  return function(transaction: Transaction<Domain>) {
+    const { kind, id, delta } = transaction;
     return new Promise<void>(resolve => {
       queuedTasksFor(kind, id).push({ delta, resolve });
       run(kind, id);

@@ -1,11 +1,7 @@
-import { Data, Delta } from "./types";
+import { Data, Transaction } from "./types";
 
 type Params<Domain> = {
-  commitTransaction: <K extends keyof Domain>(
-    kind: K,
-    id: string,
-    delta: (prev: Domain[K]) => Domain[K]
-  ) => Promise<void>;
+  commitTransaction: (transaction: Transaction<Domain>) => Promise<void>;
   onChangePendingTransactionCount: () => void;
   onError: (error: Error) => void;
   onRerenderKind: <K extends keyof Domain>(kind: K, id: string) => void;
@@ -13,12 +9,6 @@ type Params<Domain> = {
 };
 
 export function optimisticUi<Domain>(params: Params<Domain>) {
-  type Transaction<K extends keyof Domain = keyof Domain> = {
-    kind: K;
-    id: string;
-    delta: Delta<Domain, K>;
-  };
-
   const {
     commitTransaction,
     onChangePendingTransactionCount,
@@ -27,16 +17,11 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
     optimisticUIEnabled
   } = params;
 
-  let pendingTransactions: Transaction[] = [];
+  let pendingTransactions: Transaction<Domain>[] = [];
 
   return {
-    pendingTransactionCount: () => pendingTransactions.length,
-    update: function<K extends keyof Domain>(
-      kind: K,
-      id: string,
-      delta: Delta<Domain, K>
-    ) {
-      const transaction: Transaction<any> = { kind, id, delta };
+    addTransaction: function(transaction: Transaction<Domain>) {
+      const { kind, id } = transaction;
 
       pendingTransactions.push(transaction);
       onChangePendingTransactionCount();
@@ -44,7 +29,7 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
       // Rerender immediately to show optimistic update
       onRerenderKind(kind, id);
 
-      commitTransaction(kind, id, delta)
+      commitTransaction(transaction)
         .then(function() {
           pendingTransactions = pendingTransactions.filter(
             t => t !== transaction
@@ -58,6 +43,7 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
         })
         .catch(onError);
     },
+    pendingTransactionCount: () => pendingTransactions.length,
     withPendingTransactions: function(data: Data<Domain>): Data<Domain> {
       if (!optimisticUIEnabled()) return data;
 
