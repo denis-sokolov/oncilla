@@ -50,5 +50,8 @@ export type Events<Domain> = {
 export type Transaction<Domain, K extends keyof Domain = keyof Domain> = {
   kind: K;
   id: string;
-  delta: Delta<Domain, K>;
-};
+} & TransactionAction<Domain, K>;
+
+export type TransactionAction<Domain, K extends keyof Domain = keyof Domain> =
+  | { delta: Delta<Domain, K> }
+  | { creation: Domain[K] };

@@ -76,7 +76,7 @@ The server may, however, decide to send fewer update messages than there are upd
 
 The client expresses an intent to change the data with a `push` message, with `kind`, `id`, and `value`, but also `lastSeenRevision` and `pushId`.
 
-**lastSeenRevision** A verbatim string value of the `revision` field of the latest update of the entity the client has. To be able to perform an update, the client must have first seen a domain entity in an update from the server. Pushes without seeing previous versions are disallowed.
+**lastSeenRevision** A verbatim string value of the `revision` field of the latest update of the entity the client has. To be able to perform an update, the client must have first seen a domain entity in an update from the server. Updates without seeing previous versions are disallowed. To create an item that did not exist before, send special string `creating-new-item` as lastSeenRevision.
 
 **pushId** A unique-per-connection push id string, generated on the client. The client can use this field as described later.
 

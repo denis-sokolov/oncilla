@@ -1,5 +1,5 @@
 import { PushResult } from "../../network/types";
-import { Data, Transaction } from "../types";
+import { Data, Transaction, TransactionAction } from "../types";
 import { makeThrottled } from "./throttled";
 
 const defaultRetries = 15;
@@ -33,7 +33,7 @@ export function makePush<Domain>(params: Params<Domain>) {
   async function attemptPush<K extends keyof Domain>(params: {
     kind: K;
     id: string;
-    deltas: ((prev: Domain[K]) => Domain[K])[];
+    actions: TransactionAction<Domain, K>[];
     retriesRemaining: number;
     previousConflictOnRevision?: string;
   }): Promise<void> {
@@ -45,20 +45,27 @@ export function makePush<Domain>(params: Params<Domain>) {
     const {
       kind,
       id,
-      deltas,
+      actions,
       previousConflictOnRevision,
       retriesRemaining
     } = params;
 
     const curr = canonData[kind][id];
-    if (!curr)
+
+    const value = actions.reduce((prev, action) => {
+      if ("creation" in action) return action.creation;
+      if (!prev)
+        throw new Error(
+          `Pushing to ${kind} while the canon data is empty is not yet implemented. Proper implementation turns on observing here, waits for the data and tries to push.`
+        );
+      return action.delta(prev);
+    }, curr && curr.value);
+    if (!value)
       throw new Error(
-        `Pushing to ${kind} while the canon data is empty is not yet implemented. Proper implementation turns on observing here, waits for the data and tries to push.`
+        `Some transaction on ${kind} ${id} returned a falsy value.`
       );
 
-    const value = deltas.reduce((v, delta) => delta(v), curr.value);
-
-    const lastSeenRevision = curr.revision;
+    const lastSeenRevision = curr ? curr.revision : "creating-new-item";
     const pushId = `push-${pushCounter++}`;
     const result = await onNetPush({
       kind,
@@ -68,6 +75,11 @@ export function makePush<Domain>(params: Params<Domain>) {
       value
     });
     if (result === "conflict") {
+      if (lastSeenRevision === "creating-new-item") {
+        throw new Error(
+          `Failed to create new item ${kind} ${id}. Check whether the server correctly allows creating new items and that your id is uniqely generated.`
+        );
+      }
       if (
         previousConflictOnRevision &&
         lastSeenRevision === previousConflictOnRevision
@@ -106,7 +118,7 @@ export function makePush<Domain>(params: Params<Domain>) {
   const queuedTasks: {
     [k in keyof Domain]?: {
       [id: string]: {
-        delta: (prev: Domain[k]) => Domain[k];
+        action: TransactionAction<Domain, k>;
         resolve: () => void;
       }[];
     }
@@ -126,7 +138,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       await attemptPush({
         kind,
         id,
-        deltas: tasks.map(t => t.delta),
+        actions: tasks.map(t => t.action),
         retriesRemaining: defaultRetries
       });
     } catch (err) {
@@ -137,9 +149,9 @@ export function makePush<Domain>(params: Params<Domain>) {
 
   const run = makeThrottled<keyof Domain>(performPush);
   return function(transaction: Transaction<Domain>) {
-    const { kind, id, delta } = transaction;
+    const { kind, id } = transaction;
     return new Promise<void>(resolve => {
-      queuedTasksFor(kind, id).push({ delta, resolve });
+      queuedTasksFor(kind, id).push({ action: transaction, resolve });
       run(kind, id);
     });
   };
