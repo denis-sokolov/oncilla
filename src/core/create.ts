@@ -71,6 +71,9 @@ export function create<Domain>(
       pendingTransactionCount,
       withPendingTransactions
     },
+    create: (kind, id, value) => {
+      addTransaction({ kind, id, creation: value });
+    },
     connectivity: () =>
       debugConfig.pretendOffline ? "offline" : connectivity(),
     observe,

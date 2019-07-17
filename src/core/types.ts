@@ -16,6 +16,11 @@ export type FullDB<Domain> = {
     withPendingTransactions: (data: Data<Domain>) => Data<Domain>;
   };
   connectivity: () => Connectivity;
+  create: <K extends keyof Domain>(
+    kind: K,
+    id: string,
+    value: Domain[K]
+  ) => void;
   observe: (kind: keyof Domain, id: string) => () => void;
   update: <K extends keyof Domain>(
     kind: K,
@@ -50,5 +55,8 @@ export type Events<Domain> = {
 export type Transaction<Domain, K extends keyof Domain = keyof Domain> = {
   kind: K;
   id: string;
-  delta: Delta<Domain, K>;
-};
+} & TransactionAction<Domain, K>;
+
+export type TransactionAction<Domain, K extends keyof Domain = keyof Domain> =
+  | { delta: Delta<Domain, K> }
+  | { creation: Domain[K] };

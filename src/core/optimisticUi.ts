@@ -54,17 +54,21 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
 
       // Apply pending transactions on top of the canon version
       pendingTransactions.forEach(function(transaction) {
-        const prev = result[transaction.kind][transaction.id];
-        if (!prev)
-          throw new Error(
-            `withPendingTransactions ${transaction.kind} ${
-              transaction.id
-            } called before the data has been retrieved`
-          );
-        result[transaction.kind][transaction.id] = {
-          revision: "optimistic",
-          value: transaction.delta(prev.value)
-        };
+        if ("delta" in transaction) {
+          const prev = result[transaction.kind][transaction.id];
+          // If we have not fetched the item yet,
+          // we don’t need to transform it optimistically
+          if (!prev) return;
+          result[transaction.kind][transaction.id] = {
+            revision: "optimistic",
+            value: transaction.delta(prev.value)
+          };
+        } else {
+          result[transaction.kind][transaction.id] = {
+            revision: "optimistic",
+            value: transaction.creation
+          };
+        }
       });
 
       return result;

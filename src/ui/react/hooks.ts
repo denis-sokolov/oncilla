@@ -45,6 +45,18 @@ export function makeHooks<Domain>(params: {
       return db.connectivity();
     },
 
+    useCreate: function<K extends keyof Domain>(kind: K) {
+      const db = useTryDB();
+      if (db === "missing-provider")
+        throw new Error(
+          "The component you render needs a DBProvider grand-parent"
+        );
+
+      return function(id: string, value: Domain[K]) {
+        db.create(kind, id, value);
+      };
+    },
+
     useData: function<K extends keyof Domain>(
       kind: K,
       id: string
