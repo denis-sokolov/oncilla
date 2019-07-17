@@ -22,7 +22,7 @@ export function makeDummyAdapter<Domain>(
   });
 
   const onMissing = opts.onMissing || defaultOnMissing;
-  let locked = false;
+  const locks = new Set();
   return function({ onChange, onConnectivityChange, onPushResult }) {
     setTimeout(() => onConnectivityChange("online"), 1000);
     return {
@@ -38,16 +38,17 @@ export function makeDummyAdapter<Domain>(
         return () => {};
       },
       push: ({ kind, id, pushId, value }) => {
-        if (locked) {
+        const lockKey = `${kind}-${id}`;
+        if (locks.has(lockKey)) {
           setTimeout(() => onPushResult(pushId, "conflict"), 500);
           return;
         }
-        locked = true;
+        locks.add(lockKey);
         setTimeout(() => {
           data[kind][id] = value;
           onChange({ kind, id, revision: "dummy", value });
           onPushResult(pushId, { newRevision: "dummy", newValue: value });
-          locked = false;
+          locks.delete(lockKey);
         }, 2000);
       }
     };
