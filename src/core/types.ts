@@ -16,6 +16,11 @@ export type FullDB<Domain> = {
     withPendingTransactions: (data: Data<Domain>) => Data<Domain>;
   };
   connectivity: () => Connectivity;
+  create: <K extends keyof Domain>(
+    kind: K,
+    id: string,
+    value: Domain[K]
+  ) => void;
   observe: (kind: keyof Domain, id: string) => () => void;
   update: <K extends keyof Domain>(
     kind: K,
