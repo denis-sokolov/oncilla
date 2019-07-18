@@ -1,3 +1,7 @@
+# 5.1.0
+
+- Facilities to create items, useCreate hook
+
 # 5.0.0
 
 - Breaking: pushResult sends inline update
