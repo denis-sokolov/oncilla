@@ -85,7 +85,7 @@ export function makePush<Domain>(params: Params<Domain>) {
         lastSeenRevision === previousConflictOnRevision
       ) {
         throw new Error(
-          `The revision ${lastSeenRevision} is not changing and the server keeps responding with a conflict. Check whether the server is correctly incrementing the revision and whether the client is subscribed to updates on ${kind} ${id}.`
+          `The revision ${lastSeenRevision} is not changing and the server keeps responding with a conflict. Check whether the server is correctly incrementing the revision, whether the server is correctly sending updates with new revisions, and whether the client is subscribed to updates on ${kind} ${id}.`
         );
       }
       // Server and the connection are healthy, so reset the retries
