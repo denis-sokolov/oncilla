@@ -55,6 +55,22 @@ PouchDB brings a lot of battle-tested power to the table, but it relies on the C
 
 Another solid option is Apollo Client 2.5 with React Apollo 3. At the time of writing React Apollo 3 is nearing the release. Although Apollo is very GraphQL-oriented, there are some features on the side that allow it to talk over non-GraphQL HTTP.
 
+## About Theorem
+
+![Theorem](docs/images/theorem.jpg)
+
+This software is lovingly maintained and funded by Theorem.
+From whiteboarding new concepts to long-term support, Theorem works with startups and large multi-national enterprises to develop new applications, software, services, and platforms to achieve the best results and deliver Full Stack Innovation™
+
+At Theorem we believe in and support open-source software.
+
+- Check out more of our open-source software at Theorem.
+- Learn more about [our work](https://theorem.co/portfolio).
+- [Hire us](https://theorem.co/contact) to work on your project.
+- [Want to join the team?](https://theorem.co/careers)
+
+_Theorem and the Theorem logo are trademarks or registered trademarks of Theorem, LLC._
+
 ---
 
 _The oncilla is a small tiger cat on the IUCN Red List._
