@@ -20,6 +20,5 @@
     "strict": true,
     "target": "es2016"
   },
-  "exclude": ["src/**/*.test.ts"],
   "include": ["src/**/*.ts", "typings/"]
 }

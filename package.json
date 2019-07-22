@@ -3,7 +3,7 @@
   "version": "5.1.0",
   "description": "Client-side database for real-time and optimistic UI",
   "scripts": {
-    "build": "rm -rf dist && NODE_ENV=production tsc",
+    "build": "rm -rf dist && NODE_ENV=production tsc --project tsconfig.build.json",
     "ci": "npm run verify",
     "format": "prettier --write '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
     "format-verify": "prettier --check '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
