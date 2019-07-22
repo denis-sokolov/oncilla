@@ -49,6 +49,20 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       onTerminate: () => socket.terminate()
     });
 
+    let latestToken: string | undefined;
+    const evaluateToken = () => {
+      if (!latestToken) return;
+      if (!auth) throw new Error("auth is not configured");
+      authQueue.newAuthIncoming(
+        auth
+          .parseToken(latestToken, { close: () => socket.terminate() })
+          .catch(() => {
+            socket.terminate();
+            return undefined;
+          })
+      );
+    };
+
     const send = (obj: {}) => {
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify(obj));
@@ -57,16 +71,8 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
       auth: msg => {
-        const { token } = msg;
-        if (!auth) throw new Error("Unexpected auth message");
-        authQueue.newAuthIncoming(
-          auth
-            .parseToken(token, { close: () => socket.terminate() })
-            .catch(() => {
-              socket.terminate();
-              return undefined;
-            })
-        );
+        latestToken = msg.token;
+        evaluateToken();
       },
       push: async msg => {
         const { kind, id, lastSeenRevision, value } = msg;
