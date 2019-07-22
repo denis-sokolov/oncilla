@@ -20,14 +20,14 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     key: K,
     close: () => void,
     onData: (value: ValueContainer) => void
-  ) {
+  ): () => void {
     if (listeningTo.includes(stringy(key))) {
       const last = latestCopies[stringy(key)];
       if (last) onData(last);
-      return;
+      return () => {};
     }
     listeningTo.push(stringy(key));
-    events.on("change", eventKV => {
+    const cancel = events.on("change", eventKV => {
       if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
     });
     onRequestData({
@@ -35,6 +35,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       close: close,
       send: value => events.emit("change", { ...key, value })
     });
+    return cancel;
   }
 
   const server =
@@ -114,7 +115,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       },
       subscribe: msg => {
         const { id, kind } = msg;
-        getAndObserve(
+        const cancel = getAndObserve(
           { kind, id },
           () => socket.terminate(),
           async v => {
@@ -137,6 +138,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
             });
           }
         );
+        socket.on("close", cancel);
       }
     };
 

@@ -24,6 +24,7 @@ export function makeWsMock() {
             onClientMessage = cb as any;
             return;
           }
+          if (event === "close") return;
           throw new Error(`event ${event} not implemented`);
         },
         readyState: 1,
