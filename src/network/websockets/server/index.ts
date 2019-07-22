@@ -63,6 +63,9 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       );
     };
 
+    const reEvaluateToken = setInterval(evaluateToken, 5 * 60000);
+    socket.on("close", () => clearInterval(reEvaluateToken));
+
     const send = (obj: {}) => {
       if (socket.readyState !== 1) return;
       socket.send(JSON.stringify(obj));
