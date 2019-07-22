@@ -45,7 +45,32 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       server: params.server
     });
 
-  server.on("connection", function(socket) {
+  function heartbeat(this: any) {
+    this.lifeFlag = "good";
+  }
+  setInterval(function ping() {
+    server.clients.forEach(
+      (socket: WebSocket & { lifeFlag?: "good" | "sleepy" }) => {
+        if (socket.lifeFlag === undefined) {
+          socket.lifeFlag = "good";
+          socket.on("pong", heartbeat);
+          socket.on("message", heartbeat);
+          return;
+        }
+        if (socket.lifeFlag === "good") {
+          socket.lifeFlag = "sleepy";
+          socket.ping();
+          return;
+        }
+        if (socket.lifeFlag === "sleepy") {
+          socket.terminate();
+          return;
+        }
+      }
+    );
+  }, 60000);
+
+  server.on("connection", function(socket: WebSocket & { isAlive?: boolean }) {
     const authQueue = makeAuthQueue<AuthDetails>({
       onTerminate: () => socket.terminate()
     });
