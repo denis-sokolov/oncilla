@@ -2,6 +2,7 @@ export function makeAuthQueue<Details>(params: { onTerminate: () => void }) {
   const { onTerminate } = params;
 
   let currentPromise: Promise<Details | undefined> = Promise.resolve(undefined);
+  let latestPromise: Promise<Details | undefined> = Promise.resolve(undefined);
   const waitingCalls: ((details: Details) => void)[] = [];
 
   return {
@@ -15,10 +16,21 @@ export function makeAuthQueue<Details>(params: { onTerminate: () => void }) {
       }
       return new Promise(resolve => waitingCalls.push(resolve));
     },
-    newAuthIncoming: async (p: Promise<Details | undefined>) => {
-      currentPromise = p;
+    newAuthIncoming: async (
+      p: Promise<Details | undefined>,
+      options: { block?: boolean } = {}
+    ) => {
+      const shouldBlock = options.block !== false;
+
+      latestPromise = p;
+
+      if (shouldBlock) currentPromise = p;
+
       const details = await p;
-      if (!details || currentPromise !== p) return;
+      if (!details || latestPromise !== p) return;
+
+      if (!shouldBlock) currentPromise = p;
+
       waitingCalls.forEach(f => f(details));
       waitingCalls.splice(0);
     }
