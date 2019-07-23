@@ -5,6 +5,7 @@ type Message = { action: string; [k: string]: any };
 export function makeWsMock() {
   let connectionListener: (socket: WebSocket) => void;
   const server: Server = ({
+    clients: new Set(),
     on: function(event: string, cb: Function) {
       if (event === "connection") {
         if (connectionListener) throw new Error("Not implemented");

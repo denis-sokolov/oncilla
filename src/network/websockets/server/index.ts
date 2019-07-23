@@ -20,14 +20,14 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     key: K,
     close: () => void,
     onData: (value: ValueContainer) => void
-  ) {
+  ): () => void {
     if (listeningTo.includes(stringy(key))) {
       const last = latestCopies[stringy(key)];
       if (last) onData(last);
-      return;
+      return () => {};
     }
     listeningTo.push(stringy(key));
-    events.on("change", eventKV => {
+    const cancel = events.on("change", eventKV => {
       if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
     });
     onRequestData({
@@ -35,6 +35,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       close: close,
       send: value => events.emit("change", { ...key, value })
     });
+    return cancel;
   }
 
   const server =
@@ -44,7 +45,32 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       server: params.server
     });
 
-  server.on("connection", function(socket) {
+  function heartbeat(this: any) {
+    this.lifeFlag = "good";
+  }
+  setInterval(function ping() {
+    server.clients.forEach(
+      (socket: WebSocket & { lifeFlag?: "good" | "sleepy" }) => {
+        if (socket.lifeFlag === undefined) {
+          socket.lifeFlag = "good";
+          socket.on("pong", heartbeat);
+          socket.on("message", heartbeat);
+          return;
+        }
+        if (socket.lifeFlag === "good") {
+          socket.lifeFlag = "sleepy";
+          socket.ping();
+          return;
+        }
+        if (socket.lifeFlag === "sleepy") {
+          socket.terminate();
+          return;
+        }
+      }
+    );
+  }, 60000);
+
+  server.on("connection", function(socket: WebSocket & { isAlive?: boolean }) {
     const authQueue = makeAuthQueue<AuthDetails>({
       onTerminate: () => socket.terminate()
     });
@@ -123,7 +149,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       },
       subscribe: msg => {
         const { id, kind } = msg;
-        getAndObserve(
+        const cancel = getAndObserve(
           { kind, id },
           () => socket.terminate(),
           async v => {
@@ -146,6 +172,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
             });
           }
         );
+        socket.on("close", cancel);
       }
     };
 
