@@ -11,7 +11,7 @@ export function makeWsMock() {
         connectionListener = cb as any;
         return server;
       }
-      throw new Error("Not implemented");
+      throw new Error(`Event ${event} not implemented`);
     }
   } as Partial<Server>) as Server;
   return {
@@ -24,7 +24,7 @@ export function makeWsMock() {
             onClientMessage = cb as any;
             return;
           }
-          throw new Error("Not implemented");
+          throw new Error(`event ${event} not implemented`);
         },
         readyState: 1,
         send: (data: string) => onServerMessage(JSON.parse(data))
