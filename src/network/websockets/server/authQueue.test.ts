@@ -1,8 +1,42 @@
 import test from "ava";
 import { runWebsocketServer } from ".";
+import { makeAuthQueue } from "./authQueue";
 import { makeWsMock } from "./ws-mock";
 
 const infinitePromise = new Promise(() => {});
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+test("authQueue fetches details", async t => {
+  const queue = makeAuthQueue({
+    onTerminate: () => {}
+  });
+  queue.newAuthIncoming(Promise.resolve("first"));
+  const details = await queue.details();
+  t.is(details, "first");
+});
+
+test("authQueue blocks by default", async t => {
+  const queue = makeAuthQueue({
+    onTerminate: () => {}
+  });
+  queue.newAuthIncoming(Promise.resolve("first"));
+  await queue.details();
+  queue.newAuthIncoming(infinitePromise);
+  queue.details().then(() => t.fail("Should not have given details"));
+  await sleep(50);
+  t.pass();
+});
+
+test("authQueue does not blocks when asked not to", async t => {
+  const queue = makeAuthQueue({
+    onTerminate: () => {}
+  });
+  queue.newAuthIncoming(Promise.resolve("first"));
+  await queue.details();
+  queue.newAuthIncoming(infinitePromise, { block: false });
+  const details = await queue.details();
+  t.is(details, "first");
+});
 
 test.cb("websocket server queues message processing behind auth", t => {
   const ws = makeWsMock();

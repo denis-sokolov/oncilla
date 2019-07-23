@@ -25,6 +25,7 @@ export type Params<AuthDetails> = {
       kind: string;
       id: string;
     }) => boolean;
+    // parseToken will be called multiple times over the course of one socket lifetime to refresh the permissions periodically
     parseToken: (
       token: string,
       params: {
