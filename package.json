@@ -18,7 +18,7 @@
   "dependencies": {
     "nanoevents": "^2.0.0",
     "reconnecting-websocket": "^4.1.10",
-    "ws": "^6.2.1"
+    "ws": "^7.1.1"
   },
   "devDependencies": {
     "@types/nanoevents": "^1.0.0",
