@@ -1,3 +1,7 @@
+# 5.2.0
+
+- Refresh auth periodically
+
 # 5.1.0
 
 - Facilities to create items, useCreate hook
