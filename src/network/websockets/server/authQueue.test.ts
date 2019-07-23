@@ -15,7 +15,7 @@ test.cb("websocket server queues message processing behind auth", t => {
       canWrite: () => false,
       parseToken: () => infinitePromise
     },
-    onChangeData: async () => "success",
+    onChangeData: async ({ value }) => ({ newRevision: "2", newValue: value }),
     onRequestData: ({ send }) => send({ revision: "1", value: "Buy milk" }),
     _ws: ws.server
   });
@@ -33,7 +33,7 @@ test.cb("websocket server queues message processing behind second auth", t => {
       canWrite: () => false,
       parseToken: async token => (token === "admin" ? "admin" : infinitePromise)
     },
-    onChangeData: async () => "success",
+    onChangeData: async ({ value }) => ({ newRevision: "2", newValue: value }),
     onRequestData: ({ send }) => send({ revision: "1", value: "Buy milk" }),
     _ws: ws.server
   });
@@ -55,7 +55,7 @@ test.cb("websocket server checks latest permissions for updates", t => {
       canWrite: () => false,
       parseToken: async token => token
     },
-    onChangeData: async () => "success",
+    onChangeData: async ({ value }) => ({ newRevision: "2", newValue: value }),
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
       setTimeout(() => {
@@ -82,7 +82,7 @@ test.cb("websocket server queues messages before the first auth", t => {
       canWrite: () => false,
       parseToken: async token => token
     },
-    onChangeData: async () => "success",
+    onChangeData: async ({ value }) => ({ newRevision: "2", newValue: value }),
     onRequestData: ({ send }) => send({ revision: "1", value: "Buy milk" }),
     _ws: ws.server
   });
@@ -105,7 +105,10 @@ test.cb(
         canWrite: () => false,
         parseToken: async token => token
       },
-      onChangeData: async () => "success",
+      onChangeData: async ({ value }) => ({
+        newRevision: "2",
+        newValue: value
+      }),
       onRequestData: ({ send }) => send({ revision: "1", value: "Buy milk" }),
       _ws: ws.server
     });
@@ -121,7 +124,7 @@ test.cb(
   "websocket server queues messages before the first auth successful auth",
   t => {
     const ws = makeWsMock();
-    runWebsocketServer({
+    runWebsocketServer<string | undefined>({
       auth: {
         canRead: () => false,
         canWrite: ({ auth }) => auth === "admin",
@@ -130,7 +133,10 @@ test.cb(
       onChangeData: async ({ value }) => {
         t.is(value, "Buy cocoa");
         t.end();
-        return "success";
+        return {
+          newRevision: "2",
+          newValue: value
+        };
       },
       onRequestData: () => {},
       _ws: ws.server
