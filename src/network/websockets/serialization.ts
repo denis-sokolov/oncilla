@@ -1,6 +1,6 @@
 export type Serialization = {
-  encode: (value: unknown) => string;
-  decode: (string: string) => unknown;
+  encode: (value: unknown, kind: any) => string;
+  decode: (string: string, kind: any) => unknown;
 };
 
 export const jsonSerialization: Serialization = {

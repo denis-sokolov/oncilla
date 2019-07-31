@@ -119,7 +119,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           kind,
           lastSeenRevision,
           id,
-          value: serialization.decode(value),
+          value: serialization.decode(value, kind),
           close: () => socket.terminate()
         })
           .then(function(result) {
@@ -135,7 +135,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
                 pushId: msg.pushId,
                 result: "success",
                 newRevision: result.newRevision,
-                newValue: serialization.encode(result.newValue)
+                newValue: serialization.encode(result.newValue, kind)
               });
           })
           .catch(function(err) {
@@ -168,7 +168,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
               id,
               kind,
               revision: v.revision,
-              value: serialization.encode(v.value)
+              value: serialization.encode(v.value, kind)
             });
           }
         );
