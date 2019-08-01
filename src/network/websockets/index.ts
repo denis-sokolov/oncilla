@@ -60,20 +60,27 @@ export function makeWsProtocolAdapter(
           onError(new Error(msg.message));
         },
         pong: () => {},
-        pushResult: (msg: any) => {
-          if (msg.result === "success")
-            onPushResult(msg.pushId, {
-              newRevision: msg.newRevision,
-              newValue: serialization.decode(msg.newValue, msg.kind)
+        pushResult: ({
+          id,
+          kind,
+          newRevision,
+          newValue,
+          pushId,
+          result
+        }: any) => {
+          if (result === "success")
+            onPushResult(pushId, {
+              newRevision: newRevision,
+              newValue: serialization.decode(newValue, { id, kind })
             });
-          else onPushResult(msg.pushId, msg.result);
+          else onPushResult(pushId, result);
         },
         update: ({ id, kind, revision, value }: any) =>
           onChange({
             kind,
             id,
             revision,
-            value: serialization.decode(value, kind)
+            value: serialization.decode(value, { id, kind })
           })
       };
       socket.onmessage = function(event) {
@@ -100,7 +107,7 @@ export function makeWsProtocolAdapter(
             id,
             pushId,
             lastSeenRevision,
-            value: serialization.encode(value, kind)
+            value: serialization.encode(value, { id, kind: String(kind) })
           });
         }
       };
