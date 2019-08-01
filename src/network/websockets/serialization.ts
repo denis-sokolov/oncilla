@@ -1,6 +1,11 @@
+export type SerializationContext = {
+  id: string;
+  kind: string;
+};
+
 export type Serialization = {
-  encode: (value: unknown) => string;
-  decode: (string: string) => unknown;
+  encode: (value: unknown, context: SerializationContext) => string;
+  decode: (string: string, context: SerializationContext) => unknown;
 };
 
 export const jsonSerialization: Serialization = {
