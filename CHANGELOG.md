@@ -1,3 +1,7 @@
+# 5.3.0
+
+- Add context to serialization APIs
+
 # 5.2.0
 
 - Refresh auth periodically
