@@ -78,7 +78,10 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     let latestToken: string | undefined;
     const evaluateToken = () => {
       if (!latestToken) return;
-      if (!auth) throw new Error("auth is not configured");
+      if (!auth) {
+        console.log("Ignoring auth message");
+        return;
+      }
       authQueue.newAuthIncoming(
         auth
           .parseToken(latestToken, { close: () => socket.terminate() })
