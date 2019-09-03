@@ -1,3 +1,8 @@
+# 5.3.1
+
+- Allow unexpected auth messages
+- Fix sending updates to clients
+
 # 5.3.0
 
 - Add context to serialization APIs
