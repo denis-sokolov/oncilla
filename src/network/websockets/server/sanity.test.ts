@@ -70,3 +70,35 @@ test.cb("websocket server writes data", t => {
     pushId: "p1"
   });
 });
+
+test.cb("websocket server shares updates with other clients", t => {
+  const ws = makeWsMock();
+  let storedValue = "Buy milk";
+  runWebsocketServer({
+    onChangeData: async ({ value }) => {
+      storedValue = value as string;
+      return { newRevision: "2", newValue: value };
+    },
+    onRequestData: ({ send }) => {
+      send({ revision: "1", value: storedValue });
+    },
+    _ws: ws.server
+  });
+  const client1 = ws.client(() => {});
+  const client2 = ws.client(msg => {
+    if (msg.action === "update" && msg.revision === "2") {
+      t.is(msg.kind, "tasks");
+      t.is(msg.value, JSON.stringify("Buy cocoa"));
+      t.end();
+    }
+  });
+  client2.send({ action: "subscribe", kind: "tasks", id: "1" });
+  client1.send({
+    action: "push",
+    kind: "tasks",
+    id: "1",
+    lastSeenRevision: "1",
+    value: JSON.stringify("Buy cocoa"),
+    pushId: "p1"
+  });
+});
