@@ -21,15 +21,17 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     close: () => void,
     onData: (value: ValueContainer) => void
   ): () => void {
+    const cancel = events.on("change", eventKV => {
+      if (stringy(key) === stringy(eventKV)) {
+        onData(eventKV.value);
+      }
+    });
     if (listeningTo.includes(stringy(key))) {
       const last = latestCopies[stringy(key)];
       if (last) onData(last);
-      return () => {};
+      return cancel;
     }
     listeningTo.push(stringy(key));
-    const cancel = events.on("change", eventKV => {
-      if (stringy(key) === stringy(eventKV)) onData(eventKV.value);
-    });
     onRequestData({
       ...key,
       close: close,
@@ -69,7 +71,6 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       }
     );
   }, 60000);
-
   server.on("connection", function(socket: WebSocket & { isAlive?: boolean }) {
     const authQueue = makeAuthQueue<AuthDetails>({
       onTerminate: () => socket.terminate()
@@ -129,7 +130,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
                 pushId: msg.pushId,
                 result: result
               });
-            else
+            else {
               send({
                 action: "pushResult",
                 id,
@@ -139,6 +140,12 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
                 newRevision: result.newRevision,
                 newValue: serialization.encode(result.newValue, { id, kind })
               });
+              events.emit("change", {
+                kind,
+                id,
+                value: { revision: result.newRevision, value: result.newValue }
+              });
+            }
           })
           .catch(function(err) {
             send({
