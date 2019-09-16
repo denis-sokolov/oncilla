@@ -41,7 +41,7 @@ A preview of how you access the information about the status of the synchronizat
 const connectivity = useConnectivity();
 return (
   <div>
-    {connectivity === "offline" && <div>Offline. Changes will be saved when you go online.}
+    {connectivity === "offline" && <div>Offline. Changes will be saved when you go online.</div>}
     <MyView />
   </div>;
 );
