@@ -53,7 +53,9 @@ Oncilla DB has been heavily inspired by PouchDB, CouchDB, and the Offline First 
 
 PouchDB brings a lot of battle-tested power to the table, but it relies on the CouchDB protocol for replication. Oncilla allows you to define your own replication protocol that will fit your API, or use a small Oncilla WebSocket protocol that is easy to implement in whichever backend.
 
-Another solid option is Apollo Client 2.5 with React Apollo 3. At the time of writing React Apollo 3 is nearing the release. Although Apollo is very GraphQL-oriented, there are some features on the side that allow it to talk over non-GraphQL HTTP.
+Using [GraphQL live queries](https://github.com/graphql/graphql-spec/issues/386) with optimistic updates, with or without [Relay](https://relay.dev/) can achieve similar results, but without any developer conveniences.
+
+Other projects of interest: [Falcor](https://netflix.github.io/falcor/), upcoming Apollo Client 3.
 
 ## About Theorem
 
