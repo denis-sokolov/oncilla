@@ -48,3 +48,5 @@ ReactDOM.render(withDB(<App />));
 Now you can use the data access hooks in your components, as shown in the [main readme](../README.md).
 
 When you decide to move forward with the real network implementation, see [the networking docs](network/README.md).
+
+<img src="images/diagram-detailed.png" alt="Detailed diagram showing an example of React components -> Oncilla-React -> Oncilla-core -> WebSocket adapter -> Oncilla-server -> App code -> Database" width="625">
