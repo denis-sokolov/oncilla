@@ -1,19 +1,49 @@
 import { DebugConfig, FullDB } from "../../core";
 import { ReactType } from "./types";
 
+function flat<T>(list: T[][]): T[] {
+  return list.reduce((a, b) => a.concat(b));
+}
+
+type MassUpdaterInternal<Domain, K extends keyof Domain> = (
+  options: {},
+  kind: K,
+  id: string,
+  delta: (prev: Domain[K]) => Domain[K]
+) => void;
+export interface MassUpdater<Domain, K extends keyof Domain>
+  extends MassUpdaterInternal<Domain, K> {
+  (kind: K, id: string, delta: (prev: Domain[K]) => Domain[K]): void;
+}
+
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
 export interface Updater<T> extends UpdaterInternal<T> {
   (delta: (prev: T) => T): void;
 }
 type Changer<T> = [T | "loading", Updater<T>];
 
+function makeMassUpdater<Domain, K extends keyof Domain>(
+  db: FullDB<Domain>
+): MassUpdater<Domain, K> {
+  const updater: MassUpdaterInternal<Domain, K> = function(
+    _options,
+    kind,
+    id,
+    delta
+  ) {
+    db.update(kind, id, delta);
+  };
+  return (a: any, b: any, c: any, d?: any) =>
+    d ? updater(a, b, c, d) : updater({}, a, b, c);
+}
+
 function makeUpdater<Domain, K extends keyof Domain>(
-  db: FullDB<Domain>,
+  massUpdater: MassUpdater<Domain, K>,
   kind: K,
   id: string
 ): Updater<Domain[K]> {
-  const updater: UpdaterInternal<Domain[K]> = function(_options, delta) {
-    db.update(kind, id, delta);
+  const updater: UpdaterInternal<Domain[K]> = function(options, delta) {
+    massUpdater(options, kind, id, delta);
   };
   return (a: any, b?: any) => updater(b ? a : {}, b || a);
 }
@@ -30,6 +60,64 @@ export function makeHooks<Domain>(params: {
       rerender({});
     };
   }
+
+  const useMultipleData = function<K extends keyof Domain>(
+    definition: { [k in K]: string[] }
+  ): [
+    { [k in K]: { [id: string]: Domain[k] } } | "loading",
+    MassUpdater<Domain, K>
+  ] {
+    const db = useTryDB();
+    if (db === "missing-provider")
+      throw new Error(
+        "The component you render needs a DBProvider grand-parent"
+      );
+
+    const items = flat(
+      (Object.keys(definition) as K[]).map(kind =>
+        definition[kind].map(id => ({ kind, id }))
+      )
+    );
+    const definitionHash = JSON.stringify(definition);
+
+    const rerender = useRerender();
+    React.useEffect(
+      () =>
+        db._internals.events.on("change", function(k) {
+          if (items.some(({ kind, id }) => kind === k[0] && id === k[1]))
+            rerender();
+        }),
+      [definitionHash]
+    );
+
+    React.useEffect(() => {
+      const cancels = items.map(({ kind, id }) => db.observe(kind, id));
+      return () => cancels.forEach(f => f());
+    }, [definitionHash]);
+
+    const allData = db._internals.withPendingTransactions(
+      db._internals.canonData
+    );
+    const isLoaded = items.every(({ kind, id }) => Boolean(allData[kind][id]));
+
+    const data: { [k in K]: { [id: string]: Domain[k] } } = {} as any;
+    if (isLoaded) {
+      items.forEach(({ kind, id }) => {
+        data[kind] = data[kind] || {};
+        const atom = allData[kind][id];
+        if (!atom)
+          throw new Error(
+            `Oncilla internal consistency error, unexpectedly missing ${kind}-${id} in the data`
+          );
+        data[kind][id] = atom.value;
+      });
+    }
+
+    return [
+      isLoaded ? data : "loading",
+      React.useCallback(makeMassUpdater(db), [db])
+    ];
+  };
 
   return {
     useConnectivity: () => {
@@ -61,31 +149,16 @@ export function makeHooks<Domain>(params: {
       kind: K,
       id: string
     ): Changer<Domain[K]> {
-      const db = useTryDB();
-      if (db === "missing-provider")
-        throw new Error(
-          "The component you render needs a DBProvider grand-parent"
-        );
-
-      const rerender = useRerender();
-      React.useEffect(
-        () =>
-          db._internals.events.on("change", function(k) {
-            if (k[0] === kind && k[1] === id) rerender();
-          }),
-        [kind, id]
-      );
-
-      React.useEffect(() => db.observe(kind, id), [kind, id]);
-
-      const t = db._internals.withPendingTransactions(db._internals.canonData)[
-        kind
-      ][id];
+      const [data, update] = useMultipleData<K>({
+        [kind]: [id]
+      } as any);
       return [
-        t ? t.value : "loading",
-        React.useCallback(makeUpdater(db, kind, id), [kind, id])
+        data === "loading" ? "loading" : data[kind][id],
+        makeUpdater(update, kind, id)
       ];
     },
+
+    useMultipleData,
 
     useOncillaDebug: (): [
       DebugConfig,
