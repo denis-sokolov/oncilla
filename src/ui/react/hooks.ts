@@ -61,7 +61,7 @@ export function makeHooks<Domain>(params: {
     };
   }
 
-  const useMultipleData = function<K extends keyof Domain>(
+  const useMultipleDataImplementation = function<K extends keyof Domain>(
     definition: { [k in K]: string[] }
   ): [
     { [k in K]: { [id: string]: Domain[k] } } | "loading",
@@ -119,6 +119,39 @@ export function makeHooks<Domain>(params: {
     ];
   };
 
+  function useMultipleData<K extends keyof Domain>(
+    kind: K,
+    ids: string[]
+  ): [
+    { [id: string]: Domain[K] } | "loading",
+    (id: string, delta: (prev: Domain[K]) => Domain[K]) => void
+  ];
+  function useMultipleData<K extends keyof Domain>(
+    definition: { [k in K]: string[] }
+  ): [
+    { [k in K]: { [id: string]: Domain[k] } } | "loading",
+    MassUpdater<Domain, K>
+  ];
+  function useMultipleData<K extends keyof Domain>(
+    kindOrDefinition: K | { [k in K]: string[] },
+    ids?: string[]
+  ) {
+    if (ids) {
+      const kind = kindOrDefinition as K;
+      const definition: { [k in keyof Domain]: string[] } = {
+        [kind]: ids
+      } as any;
+      const [data, update] = useMultipleDataImplementation<K>(definition);
+      return [
+        data === "loading" ? "loading" : data[kind],
+        (id: string, delta: (prev: Domain[K]) => Domain[K]) =>
+          update(kind, id, delta)
+      ];
+    }
+    const definition = kindOrDefinition as { [k in K]: string[] };
+    return useMultipleDataImplementation(definition);
+  }
+
   return {
     useConnectivity: () => {
       const db = useTryDB();
@@ -151,7 +184,7 @@ export function makeHooks<Domain>(params: {
     ): Changer<Domain[K]> {
       const [data, update] = useMultipleData<K>({
         [kind]: [id]
-      } as any);
+      } as { [k in K]: string[] });
       return [
         data === "loading" ? "loading" : data[kind][id],
         makeUpdater(update, kind, id)

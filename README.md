@@ -35,6 +35,11 @@ return (
 );
 
 // Prefer multiple useData calls above, but when the data you need to fetch is dynamic in its length, useMultipleData can help:
+const [tasks, update] = useMultipleData("tasks", ["1", "3"]);
+console.log(tasks["1"], tasks["3"]);
+update("3", prev => ({ ...prev, title: "new title" }));
+
+// Even more advanced use for multiple kinds:
 const [data, update] = useMultipleData({ tasks: ["1", "3"], jobs: ["2"] });
 console.log(data.tasks["3"], data.jobs["2"]);
 update("tasks", "3", prev => ({ ...prev, title: "new title" }));
