@@ -73,7 +73,7 @@ export function makeHooks<Domain>(params: {
           db._internals.events.on("change", function(k) {
             if (k[0] === kind && k[1] === id) rerender();
           }),
-        []
+        [kind, id]
       );
 
       React.useEffect(() => db.observe(kind, id), [kind, id]);
