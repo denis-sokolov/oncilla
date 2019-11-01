@@ -53,7 +53,7 @@ Oncilla DB has been heavily inspired by PouchDB, CouchDB, and the Offline First 
 
 PouchDB brings a lot of battle-tested power to the table, but it relies on the CouchDB protocol for replication. Oncilla allows you to define your own replication protocol that will fit your API, or use a small Oncilla WebSocket protocol that is easy to implement in whichever backend.
 
-Using [GraphQL live queries](https://github.com/graphql/graphql-spec/issues/386) with optimistic updates, with or without [Relay](https://relay.dev/) can achieve similar results, but without any developer conveniences.
+Oncilla is in essence GraphQL live queries with no or very limited data dependencies, and a client-side oriented source of truth. For a more powerful approach with GraphQL live queries, see [the discussion on the spec](https://github.com/graphql/graphql-spec/issues/386) and a [good introductory video](https://www.youtube.com/watch?v=BSw05rJaCpA).
 
 Other projects of interest: [Falcor](https://netflix.github.io/falcor/), upcoming Apollo Client 3.
 
