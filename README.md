@@ -38,11 +38,6 @@ return (
 const [tasks, update] = useMultipleData("tasks", ["1", "3"]);
 console.log(tasks["1"], tasks["3"]);
 update("3", prev => ({ ...prev, title: "new title" }));
-
-// Even more advanced use for multiple kinds:
-const [data, update] = useMultipleData({ tasks: ["1", "3"], jobs: ["2"] });
-console.log(data.tasks["3"], data.jobs["2"]);
-update("tasks", "3", prev => ({ ...prev, title: "new title" }));
 ```
 
 A preview of how you access the information about the status of the synchronization, like whether the user is offline and whether any changes are not saved yet:

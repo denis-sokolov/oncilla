@@ -30,15 +30,4 @@ test("useMultipleData sanity", t => {
   t.is(tasks["1"], "Buy milk");
   t.is(tasks["2"], "Fix roof");
   t.is(typeof updateTask, "function");
-
-  const [data, update] = useMultipleData({
-    tasks: ["1", "2"],
-    projects: ["1"]
-  });
-  if (data === "loading") return t.fail("Expected data to not be loading");
-  t.is(data.tasks["1"], "Buy milk");
-  t.is(data.tasks["2"], "Fix roof");
-  t.is(data.projects["1"].size, "big");
-  t.is((data as any).unused, undefined);
-  t.is(typeof update, "function");
 });
