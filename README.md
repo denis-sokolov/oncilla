@@ -33,6 +33,11 @@ return (
     />
   </div>
 );
+
+// Prefer multiple useData calls above, but when the data you need to fetch is dynamic in its length, useMultipleData can help:
+const [tasks, update] = useMultipleData("tasks", ["1", "3"]);
+console.log(tasks["1"], tasks["3"]);
+update("3", prev => ({ ...prev, title: "new title" }));
 ```
 
 A preview of how you access the information about the status of the synchronization, like whether the user is offline and whether any changes are not saved yet:
