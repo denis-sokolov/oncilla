@@ -1,5 +1,6 @@
-import { Connectivity, NetworkAdapter, PushResult } from "../../network/types";
+import { NetworkAdapter, PushResult } from "../../network/types";
 import { Data } from "../types";
+import { makeConnectivity } from "./connectivity";
 import { makePush } from "./push";
 
 function makeCounters() {
@@ -52,12 +53,9 @@ export function sync<Domain>(params: Params<Domain>) {
     shouldCrashWrites
   } = params;
 
-  let connectivity: Connectivity = "connecting";
-  function setConnectivity(value: Connectivity) {
-    if (connectivity === "crashed") return;
-    connectivity = value;
-    onConnectivityChange();
-  }
+  const connectivity = makeConnectivity({
+    onConnectivityChange
+  });
 
   const pushesInFlight: {
     [id: string]: (result: PushResult<any>) => void;
@@ -68,7 +66,7 @@ export function sync<Domain>(params: Params<Domain>) {
       canonData[kind][id] = { revision, value };
       onChange(kind, id);
     },
-    onConnectivityChange: setConnectivity,
+    onConnectivityChange: connectivity.set,
     onError,
     onPushResult: (pushId, result) => {
       if (!pushesInFlight[pushId]) return;
@@ -80,7 +78,7 @@ export function sync<Domain>(params: Params<Domain>) {
   const push = makePush({
     canonData,
     onError: err => {
-      setConnectivity("crashed");
+      connectivity.set("crashed");
       throw err;
     },
     onNetPush: params =>
@@ -99,7 +97,7 @@ export function sync<Domain>(params: Params<Domain>) {
 
   const counters = makeCounters();
   return {
-    connectivity: () => connectivity,
+    connectivity: connectivity.get,
     observe: <K extends keyof Domain>(kind: K, id: string) => {
       return counters.add(kind as string, id, function() {
         return net.getAndObserve(kind, id);
