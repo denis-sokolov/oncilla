@@ -1,6 +1,8 @@
 import NanoEvents from "nanoevents";
 import { Connectivity, NetworkAdapter } from "../network/types";
 
+export { Connectivity } from "../network/types";
+
 export type CreateParams<Domain> = {
   network: NetworkAdapter<Domain>;
   onError?: (error: Error) => void;

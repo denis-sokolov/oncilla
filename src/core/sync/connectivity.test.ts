@@ -1,6 +1,6 @@
 import ava, { ExecutionContext } from "ava";
 
-import { Connectivity } from "../../network";
+import { Connectivity } from "../types";
 import { sync as makeSync } from "./index";
 
 function test(
