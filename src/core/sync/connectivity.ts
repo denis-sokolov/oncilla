@@ -22,47 +22,52 @@ export function makeConnectivity(params: { onConnectivityChange: () => void }) {
     onConnectivityChange();
   }
 
+  const transitions = {
+    on: {
+      on: function(newConnectivity: Connectivity) {
+        clearTimeout(offlineDelayTimer);
+        offlineDelayTimerOn = false;
+        setReal(newConnectivity);
+      },
+      off: function() {
+        if (!offlineDelayTimerOn) {
+          offlineDelayTimerOn = true;
+          offlineDelayTimer = setTimeout(() => {
+            setReal("offline");
+            offlineDelayTimerOn = false;
+          }, 800);
+        }
+      }
+    },
+    off: {
+      off: function() {
+        clearTimeout(onlineDelayTimer);
+        pendingOnlineState = undefined;
+      },
+      on: function(newConnectivity: Connectivity) {
+        if (pendingOnlineState) {
+          pendingOnlineState = newConnectivity;
+        } else {
+          pendingOnlineState = newConnectivity;
+          onlineDelayTimer = setTimeout(() => {
+            if (!pendingOnlineState) return;
+            setReal(pendingOnlineState);
+            pendingOnlineState = undefined;
+          }, 800);
+        }
+      }
+    }
+  };
+
   return {
     get: () => current,
     set: function(newConnectivity: Connectivity) {
       if (current === "crashed") return;
       if (newConnectivity === "crashed") return setReal(newConnectivity);
 
-      if (current === "offline") {
-        if (newConnectivity === "offline") {
-          // off -> off
-          clearTimeout(onlineDelayTimer);
-          pendingOnlineState = undefined;
-        } else {
-          // off -> on
-          if (pendingOnlineState) {
-            pendingOnlineState = newConnectivity;
-          } else {
-            pendingOnlineState = newConnectivity;
-            onlineDelayTimer = setTimeout(() => {
-              if (!pendingOnlineState) return;
-              setReal(pendingOnlineState);
-              pendingOnlineState = undefined;
-            }, 800);
-          }
-        }
-      } else {
-        if (newConnectivity === "offline") {
-          // on -> off
-          if (!offlineDelayTimerOn) {
-            offlineDelayTimerOn = true;
-            offlineDelayTimer = setTimeout(() => {
-              setReal(newConnectivity);
-              offlineDelayTimerOn = false;
-            }, 800);
-          }
-        } else {
-          // on -> on
-          clearTimeout(offlineDelayTimer);
-          offlineDelayTimerOn = false;
-          setReal(newConnectivity);
-        }
-      }
+      const from = current === "offline" ? "off" : "on";
+      const to = newConnectivity === "offline" ? "off" : "on";
+      transitions[from][to](newConnectivity);
     }
   };
 }
