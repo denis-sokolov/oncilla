@@ -5,4 +5,4 @@ export function makeWindowMock(): Window {
   return overrides as Window;
 }
 
-export { networkMock } from "../network/mocks";
+export { makeDummyAdapter } from "../network";
