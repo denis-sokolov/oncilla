@@ -19,7 +19,9 @@ export interface MassUpdater<Domain, K extends keyof Domain>
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
 export type Updater<T> = UpdaterInternal<T> & {
   (delta: (prev: T) => T): void;
-};
+} & (T extends {}
+    ? { <K extends keyof T & string>(field: K, value: T[K]): void }
+    : {});
 type Changer<T> = [T | "loading", Updater<T>];
 
 function makeMassUpdater<Domain, K extends keyof Domain>(
@@ -45,7 +47,11 @@ function makeUpdater<Domain, K extends keyof Domain>(
   const updater: UpdaterInternal<Domain[K]> = function(options, delta) {
     massUpdater(options, kind, id, delta);
   };
-  return (a: any, b?: any) => updater(b ? a : {}, b || a);
+  return ((a: any, b?: any) => {
+    if (typeof a === "string")
+      return updater({}, prev => ({ ...prev, [a]: b }));
+    updater(b ? a : {}, b || a);
+  }) as any;
 }
 
 export function makeHooks<Domain>(params: {

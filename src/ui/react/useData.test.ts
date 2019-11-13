@@ -20,3 +20,14 @@ test("useData update test", async t => {
   const [taskAfter] = useData("task", "1");
   t.is(taskAfter, "Buy charcoal");
 });
+
+test("useData patch", async t => {
+  const { useData } = build(t, {
+    task: { "1": { revision: "1", value: { title: "Buy milk", priority: 5 } } }
+  });
+  const [, updateTask] = useData("task", "1");
+  updateTask("title", "Buy charcoal");
+  const [taskAfter] = useData("task", "1");
+  if (taskAfter === "loading") throw new Error();
+  t.is(taskAfter.title, "Buy charcoal");
+});
