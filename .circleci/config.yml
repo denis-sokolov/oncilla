@@ -2,18 +2,18 @@ version: 2
 jobs:
   verify:
     docker:
-      - image: circleci/node:10
+      - image: circleci/node:12
     steps:
       - checkout
       - restore_cache:
           keys:
-            - model-{{ checksum "package-lock.json" }}
-            - model-
+            - dependencies-{{ checksum "package-lock.json" }}
+            - dependencies-
       - run: npm install
       - save_cache:
           paths:
-            - model/node_modules
-          key: model-{{ checksum "package-lock.json" }}
+            - node_modules
+          key: dependencies-{{ checksum "package-lock.json" }}
       - run: npm run ci
 workflows:
   version: 2
