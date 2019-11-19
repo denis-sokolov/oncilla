@@ -29,10 +29,13 @@ return (
   <div>
     <input
       value={task.title}
-      onChange={e => updateTask(prev => ({ ...prev, title: e.target.value }))}
+      onChange={e => updateTask("title", e.target.value)}
     />
   </div>
 );
+
+// For simple field updates use the simple form like above, but when the update you perform is more complex, use a delta function form:
+// updateTask(prevTask => ({ ...prevTask, title: prevTask + " appended" }))
 
 // Prefer multiple useData calls above, but when the data you need to fetch is dynamic in its length, useMultipleData can help:
 const [tasks, update] = useMultipleData("tasks", ["1", "3"]);
