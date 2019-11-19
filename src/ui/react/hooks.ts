@@ -17,9 +17,9 @@ export interface MassUpdater<Domain, K extends keyof Domain>
 }
 
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
-export interface Updater<T> extends UpdaterInternal<T> {
+export type Updater<T> = UpdaterInternal<T> & {
   (delta: (prev: T) => T): void;
-}
+};
 type Changer<T> = [T | "loading", Updater<T>];
 
 function makeMassUpdater<Domain, K extends keyof Domain>(
