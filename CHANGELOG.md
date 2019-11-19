@@ -1,3 +1,11 @@
+# 5.4.0
+
+- Patch form of useData
+- Remove initial connection delay
+- useMultipleData
+- Throttle offline indicator a little bit
+- Fix useData not handling parameter changing correctly
+
 # 5.3.1
 
 - Allow unexpected auth messages
