@@ -16,7 +16,7 @@ Oncilla DB sits between your UI logic (i.e. React components) and your server an
 
 **Stable, but unpolished.** Oncilla DB is stable and used in production. That said, it’s a passion project limited by practicality, so many corners are as of yet unpolished, expect to contribute whenever you hit some corner cases or find missing advanced functionality.
 
-**Requires specific data modeling.** Your data will have to be modeled in terms of kind-id entities, and those entities will always be edited, synced, and accessed atomically, in full. If you can’t identify clearly delineated entities, if your entities can’t be split into chunks we can download all at once, or if you need to control user access to individual subpieces of an entity, Oncilla will not work.
+**Requires specific data modeling.** Your data will have to be modeled in terms of kind-id entities, and those entities will always be edited, synced, and accessed atomically, in full. If you can’t identify clearly delineated entities, if your entities can’t be split into chunks we can download all at once, or if you need to control user access to individual subpieces of an entity, using Oncilla will require considerable workarounds.
 
 ## Usage
 
