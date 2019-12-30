@@ -212,4 +212,6 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       handleMsg(msg);
     });
   });
+
+  return server;
 }
