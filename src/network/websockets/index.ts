@@ -45,6 +45,7 @@ export function makeWsProtocolAdapter(
     }) {
       socket.onopen = () => {
         onConnectivityChange("online");
+        restartPingMachine();
         messagesOnEveryReconnect.forEach(send);
       };
       socket.onclose = () => onConnectivityChange("offline");
