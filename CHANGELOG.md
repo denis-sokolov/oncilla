@@ -1,3 +1,7 @@
+# 5.4.1
+
+- Fix reconnects not being smooth after the first one
+
 # 5.4.0
 
 - Patch form of useData
