@@ -1,5 +1,6 @@
 import { PushResult } from "../../network/types";
 import { Data, Transaction, TransactionAction } from "../types";
+import { makeKindIdStore } from "./kindIdStore";
 import { makeThrottled } from "./throttled";
 
 const defaultRetries = 15;
@@ -115,22 +116,16 @@ export function makePush<Domain>(params: Params<Domain>) {
     throw new Error(`Unexpected result ${result}`);
   }
 
-  const queuedTasks: {
-    [k in keyof Domain]?: {
-      [id: string]: {
-        action: TransactionAction<Domain, k>;
-        resolve: () => void;
-      }[];
-    }
-  } = {};
-  function queuedTasksFor<K extends keyof Domain>(kind: K, id: string) {
-    queuedTasks[kind] = queuedTasks[kind] || {};
-    queuedTasks[kind]![id] = queuedTasks[kind]![id] || [];
-    return queuedTasks[kind]![id]!;
-  }
+  const queuedTasks = makeKindIdStore<
+    keyof Domain,
+    {
+      action: TransactionAction<Domain, keyof Domain>;
+      resolve: () => void;
+    }[]
+  >([]);
 
   async function performPush<K extends keyof Domain>(kind: K, id: string) {
-    const taskQueue = queuedTasksFor(kind, id);
+    const taskQueue = queuedTasks.get(kind, id);
     const tasks = taskQueue.slice();
     taskQueue.splice(0);
 
@@ -151,7 +146,7 @@ export function makePush<Domain>(params: Params<Domain>) {
   return function(transaction: Transaction<Domain>) {
     const { kind, id } = transaction;
     return new Promise<void>(resolve => {
-      queuedTasksFor(kind, id).push({ action: transaction, resolve });
+      queuedTasks.get(kind, id).push({ action: transaction, resolve });
       run(kind, id);
     });
   };
