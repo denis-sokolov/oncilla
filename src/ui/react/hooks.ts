@@ -224,7 +224,7 @@ export function makeHooks<Domain>(params: {
         []
       );
 
-      if (db === "missing-provider") return false;
+      if (db === "missing-provider") return 0;
       return db._internals.pendingTransactionCount();
     }
   };
