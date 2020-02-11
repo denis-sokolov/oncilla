@@ -24,11 +24,11 @@ export default function testWsAdapter() {
     adapter,
     auth: wsp.auth,
     disconnect: () => {
-      socket.onclose!({} as any);
+      if (socket.onclose) socket.onclose({} as any);
       sock.readyState = 0;
     },
     connect: () => {
-      socket.onopen!({} as any);
+      if (socket.onopen) socket.onopen({} as any);
       sock.readyState = 1;
     },
     sentMessages
