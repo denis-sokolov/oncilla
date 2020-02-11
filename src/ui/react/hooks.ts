@@ -128,14 +128,17 @@ export function makeHooks<Domain>(params: {
   return {
     useConnectivity: () => {
       const db = useTryDB();
-      if (db === "missing-provider") return "online";
 
       const rerender = useRerender();
       React.useEffect(
-        () => db._internals.events.on("connectivity-changed", rerender),
-        []
+        () =>
+          db === "missing-provider"
+            ? undefined
+            : db._internals.events.on("connectivity-changed", rerender),
+        [db, rerender]
       );
 
+      if (db === "missing-provider") return "online";
       return db.connectivity();
     },
 
@@ -208,18 +211,20 @@ export function makeHooks<Domain>(params: {
 
     usePendingChanges: () => {
       const db = useTryDB();
-      if (db === "missing-provider") return false;
 
       const rerender = useRerender();
       React.useEffect(
         () =>
-          db._internals.events.on(
-            "pending-transaction-count-changed",
-            rerender
-          ),
+          db === "missing-provider"
+            ? undefined
+            : db._internals.events.on(
+                "pending-transaction-count-changed",
+                rerender
+              ),
         []
       );
 
+      if (db === "missing-provider") return false;
       return db._internals.pendingTransactionCount();
     }
   };
