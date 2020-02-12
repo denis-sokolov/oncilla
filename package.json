@@ -48,7 +48,7 @@
   ],
   "license": "ISC",
   "main": "dist/index.js",
-  "repository": "git@github.com:citrusbyte/oncilla.git",
+  "repository": "git@github.com:Theorem/oncilla.git",
   "sideEffects": false,
   "ava": {
     "babel": false,
