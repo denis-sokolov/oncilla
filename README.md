@@ -2,7 +2,7 @@
 
 Client-side database for easy to implement real-time and optimistic UI.
 
-[![ISC license](https://img.shields.io/badge/license-ISC-blue.svg?style=flat-square)](https://github.com/facebook/react/blob/master/LICENSE) [![npm version](https://img.shields.io/npm/v/oncilla.svg?style=flat-square)](https://www.npmjs.com/package/oncilla) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/oncilla.svg?label=size&style=flat-square) ![Unpolished](https://img.shields.io/badge/stability-unpolished-yellow.svg?style=flat-square)
+[![ISC license](https://img.shields.io/badge/license-ISC-blue.svg?style=flat-square)](https://github.com/Theorem/oncilla/blob/master/LICENSE.md) [![npm version](https://img.shields.io/npm/v/oncilla.svg?style=flat-square)](https://www.npmjs.com/package/oncilla) ![npm bundle size](https://img.shields.io/bundlephobia/minzip/oncilla.svg?label=size&style=flat-square) ![Unpolished](https://img.shields.io/badge/stability-unpolished-yellow.svg?style=flat-square)
 
 Oncilla DB sits between your UI logic (i.e. React components) and your server and synchronizes the data between the two. It rerenders your views when new data arrives, and sends updates to the server in the background, allowing your UI to stay responsive. No matter what happens, whether errors or network connectivity issues arise, Oncilla will work to keep the data between your UI and the server in sync.
 
