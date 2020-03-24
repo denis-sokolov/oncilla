@@ -83,10 +83,10 @@ export function sync<Domain>(params: Params<Domain>) {
       connectivity.set("crashed");
       throw err;
     },
-    onNetPush: (params) =>
+    onNetPush: (pushParams) =>
       new Promise<PushResult<Domain[any]>>((resolve) => {
-        pushesInFlight[params.pushId] = resolve;
-        net.push(params);
+        pushesInFlight[pushParams.pushId] = resolve;
+        net.push(pushParams);
       }),
     onUpdate: ({ kind, id, newValue, newRevision }) => {
       const kindCollection: DataKindCollection<Domain[typeof kind]> =

@@ -31,7 +31,7 @@ export function makePush<Domain>(params: Params<Domain>) {
 
   let pushCounter = 0;
 
-  async function attemptPush<K extends keyof Domain>(params: {
+  async function attemptPush<K extends keyof Domain>(pushParams: {
     kind: K;
     id: string;
     actions: TransactionAction<Domain, K>[];
@@ -49,7 +49,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       actions,
       previousConflictOnRevision,
       retriesRemaining,
-    } = params;
+    } = pushParams;
 
     const curr = canonData[kind][id];
 
@@ -93,7 +93,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       // We can resolve conflicts infinitely, it’s the internal errors that
       // we need to limit retries.
       return await attemptPush({
-        ...params,
+        ...pushParams,
         previousConflictOnRevision: lastSeenRevision,
         retriesRemaining: defaultRetries,
       });
@@ -105,7 +105,7 @@ export function makePush<Domain>(params: Params<Domain>) {
         throw new Error(`Write failed after all retries`);
       await sleep(3000);
       return await attemptPush({
-        ...params,
+        ...pushParams,
         retriesRemaining: retriesRemaining - 1,
       });
     }
