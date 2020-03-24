@@ -1,3 +1,7 @@
+# 5.4.2
+
+- Maintenance release
+
 # 5.4.1
 
 - Fix reconnects not being smooth after the first one
