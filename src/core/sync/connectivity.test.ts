@@ -8,7 +8,7 @@ const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 function test(
   name: string,
   cb: (
-    t: ExecutionContext<{}>,
+    t: ExecutionContext<unknown>,
     sync: { get: () => Connectivity; set: (c: Connectivity) => void }
   ) => Promise<void>
 ) {
