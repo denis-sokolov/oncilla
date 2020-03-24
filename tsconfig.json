@@ -5,6 +5,7 @@
     "declaration": true,
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true,
+    "importsNotUsedAsValues": "error",
     "lib": ["es2015", "es2016", "dom"],
     "module": "CommonJS",
     "moduleResolution": "node",
