@@ -1,6 +1,6 @@
 export function makeWindowMock(): Window {
   const overrides: Partial<Window> = {
-    addEventListener: () => {}
+    addEventListener: () => {},
   };
   return overrides as Window;
 }

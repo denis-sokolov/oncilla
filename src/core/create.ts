@@ -7,7 +7,7 @@ import {
   DebugConfig,
   FullDB,
   Events,
-  Transaction
+  Transaction,
 } from "./types";
 
 const globalWindow = typeof window === "undefined" ? ({} as Window) : window;
@@ -18,7 +18,7 @@ export function create<Domain>(
   const { initialData, network } = params;
   const onError =
     params.onError ||
-    (err => {
+    ((err) => {
       throw err;
     });
   const window = params.window || globalWindow;
@@ -26,7 +26,7 @@ export function create<Domain>(
   const debugConfig: DebugConfig = {
     failingWrites: false,
     pretendOffline: false,
-    optimisticUIEnabled: true
+    optimisticUIEnabled: true,
   };
 
   const canonData = initialData;
@@ -39,23 +39,23 @@ export function create<Domain>(
     onChange: (kind, id) => events.emit("change", [kind, id]),
     onConnectivityChange: () => events.emit("connectivity-changed", undefined),
     onError,
-    shouldCrashWrites: () => debugConfig.failingWrites
+    shouldCrashWrites: () => debugConfig.failingWrites,
   });
 
   const {
     addTransaction,
     pendingTransactionCount,
-    withPendingTransactions
+    withPendingTransactions,
   } = optimisticUi<Domain>({
     commitTransaction: push,
     onChangePendingTransactionCount: () =>
       events.emit("pending-transaction-count-changed", undefined),
     onError,
     onRerenderKind: (kind, id) => events.emit("change", [kind, id]),
-    optimisticUIEnabled: () => debugConfig.optimisticUIEnabled
+    optimisticUIEnabled: () => debugConfig.optimisticUIEnabled,
   });
 
-  window.addEventListener("beforeunload", function(e) {
+  window.addEventListener("beforeunload", function (e) {
     // We can't ever save lost data anymore
     if (connectivity() === "crashed") return;
     if (pendingTransactionCount() === 0) return;
@@ -69,7 +69,7 @@ export function create<Domain>(
       debugConfig,
       events,
       pendingTransactionCount,
-      withPendingTransactions
+      withPendingTransactions,
     },
     create: (kind, id, value) => {
       addTransaction({ kind, id, creation: value });
@@ -77,9 +77,9 @@ export function create<Domain>(
     connectivity: () =>
       debugConfig.pretendOffline ? "offline" : connectivity(),
     observe,
-    update: function(kind, id, delta) {
+    update: function (kind, id, delta) {
       addTransaction({ kind, id, delta } as Transaction<any, any>);
-    }
+    },
   };
 
   return db;

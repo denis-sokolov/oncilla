@@ -5,7 +5,7 @@ import { makeThrottled } from "./throttled";
 
 const defaultRetries = 15;
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type Params<Domain> = {
   canonData: Data<Domain>;
@@ -48,7 +48,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       id,
       actions,
       previousConflictOnRevision,
-      retriesRemaining
+      retriesRemaining,
     } = params;
 
     const curr = canonData[kind][id];
@@ -73,7 +73,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       id,
       pushId,
       lastSeenRevision,
-      value
+      value,
     });
     if (result === "conflict") {
       if (lastSeenRevision === "creating-new-item") {
@@ -95,7 +95,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       return await attemptPush({
         ...params,
         previousConflictOnRevision: lastSeenRevision,
-        retriesRemaining: defaultRetries
+        retriesRemaining: defaultRetries,
       });
     }
     if (result === "internalError") {
@@ -106,7 +106,7 @@ export function makePush<Domain>(params: Params<Domain>) {
       await sleep(3000);
       return await attemptPush({
         ...params,
-        retriesRemaining: retriesRemaining - 1
+        retriesRemaining: retriesRemaining - 1,
       });
     }
     if (typeof result === "object") {
@@ -133,19 +133,19 @@ export function makePush<Domain>(params: Params<Domain>) {
       await attemptPush({
         kind,
         id,
-        actions: tasks.map(t => t.action),
-        retriesRemaining: defaultRetries
+        actions: tasks.map((t) => t.action),
+        retriesRemaining: defaultRetries,
       });
     } catch (err) {
       onError(err);
     }
-    tasks.forEach(t => t.resolve());
+    tasks.forEach((t) => t.resolve());
   }
 
   const run = makeThrottled<keyof Domain>(performPush);
-  return function(transaction: Transaction<Domain>) {
+  return function (transaction: Transaction<Domain>) {
     const { kind, id } = transaction;
-    return new Promise<void>(resolve => {
+    return new Promise<void>((resolve) => {
       queuedTasks.get(kind, id).push({ action: transaction, resolve });
       run(kind, id);
     });

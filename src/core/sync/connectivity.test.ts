@@ -3,7 +3,7 @@ import ava, { ExecutionContext } from "ava";
 import { Connectivity } from "../types";
 import { sync as makeSync } from "./index";
 
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function test(
   name: string,
@@ -12,22 +12,22 @@ function test(
     sync: { get: () => Connectivity; set: (c: Connectivity) => void }
   ) => Promise<void>
 ) {
-  ava(name, t => {
+  ava(name, (t) => {
     let onConnectivityChange: (c: Connectivity) => void = () => {};
     const s = makeSync({
       canonData: {},
-      network: params => {
+      network: (params) => {
         onConnectivityChange = params.onConnectivityChange;
         return {} as any;
       },
       onChange: () => {},
       onConnectivityChange: () => {},
-      onError: err => t.fail(err.message),
-      shouldCrashWrites: () => false
+      onError: (err) => t.fail(err.message),
+      shouldCrashWrites: () => false,
     });
     return cb(t, {
       get: s.connectivity,
-      set: onConnectivityChange
+      set: onConnectivityChange,
     });
   });
 }

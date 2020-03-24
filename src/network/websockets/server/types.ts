@@ -50,6 +50,7 @@ export type Params<AuthDetails> = {
 } & (
   | { port: number; server?: undefined; _ws?: undefined }
   | { port?: undefined; server: HttpServer; _ws?: undefined }
-  | { port?: undefined; server?: undefined; _ws?: WsServer });
+  | { port?: undefined; server?: undefined; _ws?: WsServer }
+);
 
 export type ValueContainer = { revision: string; value: unknown };

@@ -11,7 +11,7 @@ export function makeThrottled<Keys extends number | string | symbol>(
     }
   >({});
 
-  return function(kind: Keys, id: string) {
+  return function (kind: Keys, id: string) {
     const schedule = schedules.get(kind, id);
     function run() {
       if (schedule.debounceTimer) clearTimeout(schedule.debounceTimer);

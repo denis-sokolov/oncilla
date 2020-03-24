@@ -34,7 +34,7 @@ export type FullDB<Domain> = {
 export type Data<Domain> = {
   [k in keyof Domain]: {
     [id: string]: { revision: string; value: Domain[k] } | undefined;
-  }
+  };
 };
 
 export type Delta<Domain, K extends keyof Domain> = (

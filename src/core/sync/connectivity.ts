@@ -24,12 +24,12 @@ export function makeConnectivity(params: { onConnectivityChange: () => void }) {
 
   const transitions = {
     on: {
-      on: function(newConnectivity: Connectivity) {
+      on: function (newConnectivity: Connectivity) {
         clearTimeout(offlineDelayTimer);
         offlineDelayTimerOn = false;
         setReal(newConnectivity);
       },
-      off: function() {
+      off: function () {
         if (!offlineDelayTimerOn) {
           offlineDelayTimerOn = true;
           offlineDelayTimer = setTimeout(() => {
@@ -37,14 +37,14 @@ export function makeConnectivity(params: { onConnectivityChange: () => void }) {
             offlineDelayTimerOn = false;
           }, 800);
         }
-      }
+      },
     },
     off: {
-      off: function() {
+      off: function () {
         clearTimeout(onlineDelayTimer);
         pendingOnlineState = undefined;
       },
-      on: function(newConnectivity: Connectivity) {
+      on: function (newConnectivity: Connectivity) {
         if (pendingOnlineState) {
           pendingOnlineState = newConnectivity;
         } else {
@@ -55,19 +55,19 @@ export function makeConnectivity(params: { onConnectivityChange: () => void }) {
             pendingOnlineState = undefined;
           }, 800);
         }
-      }
-    }
+      },
+    },
   };
 
   return {
     get: () => current,
-    set: function(newConnectivity: Connectivity) {
+    set: function (newConnectivity: Connectivity) {
       if (current === "crashed") return;
       if (newConnectivity === "crashed") return setReal(newConnectivity);
 
       const from = current === "offline" ? "off" : "on";
       const to = newConnectivity === "offline" ? "off" : "on";
       transitions[from][to](newConnectivity);
-    }
+    },
   };
 }

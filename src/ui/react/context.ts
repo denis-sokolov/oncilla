@@ -13,8 +13,8 @@ export function createContext<Domain>(params: Params) {
 
   return {
     Provider: Context.Provider,
-    useTryDB: function(): FullDB<Domain> | "missing-provider" {
+    useTryDB: function (): FullDB<Domain> | "missing-provider" {
       return React.useContext(Context);
-    }
+    },
   };
 }

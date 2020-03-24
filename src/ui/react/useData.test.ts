@@ -1,18 +1,18 @@
 import test from "ava";
 import { build } from "./mocks";
 
-test("useData sanity test", t => {
+test("useData sanity test", (t) => {
   const { useData } = build(t, {
-    task: { "1": { revision: "1", value: "Buy milk" } }
+    task: { "1": { revision: "1", value: "Buy milk" } },
   });
   const [task, updateTask] = useData("task", "1");
   t.is(task, "Buy milk");
   t.is(typeof updateTask, "function");
 });
 
-test("useData update test", async t => {
+test("useData update test", async (t) => {
   const { useData } = build(t, {
-    task: { "1": { revision: "1", value: "Buy milk" } }
+    task: { "1": { revision: "1", value: "Buy milk" } },
   });
   const [task, updateTask] = useData("task", "1");
   t.is(task, "Buy milk");
@@ -21,9 +21,9 @@ test("useData update test", async t => {
   t.is(taskAfter, "Buy charcoal");
 });
 
-test("useData patch", async t => {
+test("useData patch", async (t) => {
   const { useData } = build(t, {
-    task: { "1": { revision: "1", value: { title: "Buy milk", priority: 5 } } }
+    task: { "1": { revision: "1", value: { title: "Buy milk", priority: 5 } } },
   });
   const [, updateTask] = useData("task", "1");
   updateTask("title", "Buy charcoal");

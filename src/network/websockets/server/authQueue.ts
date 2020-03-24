@@ -14,7 +14,7 @@ export function makeAuthQueue<Details>(params: { onTerminate: () => void }) {
         onTerminate();
         return new Promise(() => {});
       }
-      return new Promise(resolve => waitingCalls.push(resolve));
+      return new Promise((resolve) => waitingCalls.push(resolve));
     },
     newAuthIncoming: async (
       p: Promise<Details | undefined>,
@@ -31,8 +31,8 @@ export function makeAuthQueue<Details>(params: { onTerminate: () => void }) {
 
       if (!shouldBlock) currentPromise = p;
 
-      waitingCalls.forEach(f => f(details));
+      waitingCalls.forEach((f) => f(details));
       waitingCalls.splice(0);
-    }
+    },
   };
 }

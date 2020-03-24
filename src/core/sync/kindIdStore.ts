@@ -4,7 +4,7 @@ export function makeKindIdStore<
 >(defaultValue: T) {
   const store: { [k in Keys]?: { [id: string]: T | undefined } } = {};
   return {
-    get: function(kind: Keys, id: string) {
+    get: function (kind: Keys, id: string) {
       store[kind] = store[kind] || {};
       const kindStore = store[kind];
       if (!kindStore) throw new Error();
@@ -14,6 +14,6 @@ export function makeKindIdStore<
       if (!value) throw new Error();
 
       return value;
-    }
+    },
   };
 }

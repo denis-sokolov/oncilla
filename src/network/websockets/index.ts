@@ -23,7 +23,7 @@ export function makeWsProtocolAdapter(
   function restartPingMachine() {
     clearTimeout(pingTimer);
     clearTimeout(timeoutTimer);
-    pingTimer = setTimeout(function() {
+    pingTimer = setTimeout(function () {
       send({ action: "ping" });
       timeoutTimer = setTimeout(() => socket.reconnect(), 15000);
     }, 15000);
@@ -37,11 +37,11 @@ export function makeWsProtocolAdapter(
   const messagesOnEveryReconnect: { [k: string]: any }[] = [];
 
   return {
-    adapter: function({
+    adapter: function ({
       onChange,
       onConnectivityChange,
       onError,
-      onPushResult
+      onPushResult,
     }) {
       socket.onopen = () => {
         onConnectivityChange("online");
@@ -67,12 +67,12 @@ export function makeWsProtocolAdapter(
           newRevision,
           newValue,
           pushId,
-          result
+          result,
         }: any) => {
           if (result === "success")
             onPushResult(pushId, {
               newRevision: newRevision,
-              newValue: serialization.decode(newValue, { id, kind })
+              newValue: serialization.decode(newValue, { id, kind }),
             });
           else onPushResult(pushId, result);
         },
@@ -81,10 +81,10 @@ export function makeWsProtocolAdapter(
             kind,
             id,
             revision,
-            value: serialization.decode(value, { id, kind })
-          })
+            value: serialization.decode(value, { id, kind }),
+          }),
       };
-      socket.onmessage = function(event) {
+      socket.onmessage = function (event) {
         restartPingMachine();
         const msg = JSON.parse(event.data);
         const action = msg.action;
@@ -108,19 +108,19 @@ export function makeWsProtocolAdapter(
             id,
             pushId,
             lastSeenRevision,
-            value: serialization.encode(value, { id, kind: String(kind) })
+            value: serialization.encode(value, { id, kind: String(kind) }),
           });
-        }
+        },
       };
     },
-    auth: token => {
+    auth: (token) => {
       const msg = { action: "auth", token };
       const currentIndex = messagesOnEveryReconnect.findIndex(
-        m => m.action === "auth"
+        (m) => m.action === "auth"
       );
       if (currentIndex === -1) messagesOnEveryReconnect.push(msg);
       else messagesOnEveryReconnect[currentIndex] = msg;
       if (socket.readyState === 1) send(msg);
-    }
+    },
   };
 }

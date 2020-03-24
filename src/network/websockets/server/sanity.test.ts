@@ -2,20 +2,20 @@ import test from "ava";
 import { runWebsocketServer } from ".";
 import { makeWsMock } from "./ws-mock";
 
-test.cb("websocket server responds to ping", t => {
+test.cb("websocket server responds to ping", (t) => {
   const ws = makeWsMock();
   runWebsocketServer({
     onChangeData: async () => ({ newRevision: "2", newValue: "" }),
     onRequestData: () => {},
-    _ws: ws.server
+    _ws: ws.server,
   });
-  const client = ws.client(msg => {
+  const client = ws.client((msg) => {
     if (msg.action === "pong") t.end();
   });
   client.send({ action: "ping" });
 });
 
-test.cb("websocket server retrieves data", t => {
+test.cb("websocket server retrieves data", (t) => {
   const ws = makeWsMock();
   runWebsocketServer({
     onChangeData: async () => ({ newRevision: "2", newValue: "" }),
@@ -24,9 +24,9 @@ test.cb("websocket server retrieves data", t => {
       t.is(kind, "tasks");
       send({ revision: "1", value: "Buy milk" });
     },
-    _ws: ws.server
+    _ws: ws.server,
   });
-  const client = ws.client(msg => {
+  const client = ws.client((msg) => {
     if (msg.action === "update") {
       t.is(msg.kind, "tasks");
       t.is(msg.id, "1");
@@ -38,7 +38,7 @@ test.cb("websocket server retrieves data", t => {
   client.send({ action: "subscribe", kind: "tasks", id: "1" });
 });
 
-test.cb("websocket server writes data", t => {
+test.cb("websocket server writes data", (t) => {
   const ws = makeWsMock();
   runWebsocketServer({
     onChangeData: async ({ id, kind, value }) => {
@@ -49,9 +49,9 @@ test.cb("websocket server writes data", t => {
     onRequestData: ({ send }) => {
       send({ revision: "1", value: "Buy milk" });
     },
-    _ws: ws.server
+    _ws: ws.server,
   });
-  const client = ws.client(msg => {
+  const client = ws.client((msg) => {
     if (msg.action === "pushResult") {
       t.is(msg.pushId, "p1");
       t.is(msg.result, "success");
@@ -67,11 +67,11 @@ test.cb("websocket server writes data", t => {
     id: "1",
     lastSeenRevision: "1",
     value: JSON.stringify("Buy cocoa"),
-    pushId: "p1"
+    pushId: "p1",
   });
 });
 
-test.cb("websocket server shares updates with other clients", t => {
+test.cb("websocket server shares updates with other clients", (t) => {
   const ws = makeWsMock();
   let storedValue = "Buy milk";
   runWebsocketServer({
@@ -82,10 +82,10 @@ test.cb("websocket server shares updates with other clients", t => {
     onRequestData: ({ send }) => {
       send({ revision: "1", value: storedValue });
     },
-    _ws: ws.server
+    _ws: ws.server,
   });
   const client1 = ws.client(() => {});
-  const client2 = ws.client(msg => {
+  const client2 = ws.client((msg) => {
     if (msg.action === "update" && msg.revision === "2") {
       t.is(msg.kind, "tasks");
       t.is(msg.value, JSON.stringify("Buy cocoa"));
@@ -99,6 +99,6 @@ test.cb("websocket server shares updates with other clients", t => {
     id: "1",
     lastSeenRevision: "1",
     value: JSON.stringify("Buy cocoa"),
-    pushId: "p1"
+    pushId: "p1",
   });
 });

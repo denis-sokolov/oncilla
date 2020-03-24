@@ -9,12 +9,12 @@ export function build<D extends Data<any>>(t: ExecutionContext, data: D) {
   const react = makeReactMock();
   const configured = configure<Domain>({
     data: data,
-    React: react
+    React: react,
   });
   const { db } = configured.create({
     network: makeDummyAdapter(data),
-    onError: err => t.fail(err.message),
-    window: makeWindowMock()
+    onError: (err) => t.fail(err.message),
+    window: makeWindowMock(),
   });
   react._setContextValue(db);
   return configured;
@@ -25,15 +25,15 @@ export function makeReactMock() {
   const reactStub: typeof React = {
     ...React,
     createContext: () => ({} as any),
-    useCallback: f => f,
+    useCallback: (f) => f,
     useContext: () => contextValue as any,
     useEffect: () => {},
-    useReducer: (_: any, state: any) => [state, () => {}] as any
+    useReducer: (_: any, state: any) => [state, () => {}] as any,
   };
   return {
     ...reactStub,
     _setContextValue: (val: any) => {
       contextValue = val;
-    }
+    },
   };
 }

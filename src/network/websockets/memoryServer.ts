@@ -5,22 +5,23 @@ import { Data } from "../../core";
 import { Serialization } from "./serialization";
 import { runWebsocketServer } from "./server";
 
-const wait = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 type Params = {
   initialData: { [kind: string]: { [id: string]: unknown } };
   serialization?: Serialization;
 } & (
   | { port: number; server?: undefined }
-  | { port?: undefined; server: HttpServer });
+  | { port?: undefined; server: HttpServer }
+);
 
 export function runMemoryServer(params: Params) {
   const { initialData, port, serialization, server } = params;
 
   const data: Data<any> = {};
-  Object.keys(initialData).forEach(kind => {
+  Object.keys(initialData).forEach((kind) => {
     data[kind] = {};
-    Object.keys(initialData[kind]).forEach(id => {
+    Object.keys(initialData[kind]).forEach((id) => {
       data[kind][id] = { revision: "1", value: initialData[kind][id] };
     });
   });
@@ -32,18 +33,18 @@ export function runMemoryServer(params: Params) {
   }
 
   runWebsocketServer({
-    onChangeData: async function({ kind, id, value }) {
+    onChangeData: async function ({ kind, id, value }) {
       await wait(500);
       const curr = getItem(kind, id);
       curr.revision = String(Number(curr.revision) + 1);
       curr.value = value;
       return { newRevision: curr.revision, newValue: curr.value };
     },
-    onRequestData: function({ kind, id, send }) {
+    onRequestData: function ({ kind, id, send }) {
       send(getItem(kind, id));
     },
     port: port as any,
     serialization,
-    server: server as any
+    server: server as any,
   });
 }

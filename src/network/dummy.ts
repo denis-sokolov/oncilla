@@ -17,22 +17,22 @@ export function makeDummyAdapter<Domain>(
   // Clone data one level deep
   const _ = data;
   data = {} as any;
-  Object.keys(_).forEach(k => {
+  Object.keys(_).forEach((k) => {
     (data as any)[k] = { ...(_ as any)[k] };
   });
 
   const onMissing = opts.onMissing || defaultOnMissing;
   const locks = new Set();
-  return function({ onChange, onConnectivityChange, onPushResult }) {
+  return function ({ onChange, onConnectivityChange, onPushResult }) {
     setTimeout(() => onConnectivityChange("online"), 1000);
     return {
-      getAndObserve: function(kind, id) {
-        setTimeout(function() {
+      getAndObserve: function (kind, id) {
+        setTimeout(function () {
           onChange({
             kind,
             id,
             revision: "dummy",
-            value: id in data[kind] ? data[kind][id] : onMissing(kind, id)
+            value: id in data[kind] ? data[kind][id] : onMissing(kind, id),
           });
         }, 1500);
         return () => {};
@@ -50,7 +50,7 @@ export function makeDummyAdapter<Domain>(
           onPushResult(pushId, { newRevision: "dummy", newValue: value });
           locks.delete(lockKey);
         }, 2000);
-      }
+      },
     };
   };
 }

@@ -14,13 +14,13 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
     onChangePendingTransactionCount,
     onError,
     onRerenderKind,
-    optimisticUIEnabled
+    optimisticUIEnabled,
   } = params;
 
   let pendingTransactions: Transaction<Domain>[] = [];
 
   return {
-    addTransaction: function(transaction: Transaction<Domain>) {
+    addTransaction: function (transaction: Transaction<Domain>) {
       const { kind, id } = transaction;
 
       pendingTransactions.push(transaction);
@@ -30,9 +30,9 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
       onRerenderKind(kind, id);
 
       commitTransaction(transaction)
-        .then(function() {
+        .then(function () {
           pendingTransactions = pendingTransactions.filter(
-            t => t !== transaction
+            (t) => t !== transaction
           );
           onChangePendingTransactionCount();
 
@@ -44,16 +44,16 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
         .catch(onError);
     },
     pendingTransactionCount: () => pendingTransactions.length,
-    withPendingTransactions: function(data: Data<Domain>): Data<Domain> {
+    withPendingTransactions: function (data: Data<Domain>): Data<Domain> {
       if (!optimisticUIEnabled()) return data;
 
       const result: any = {};
-      Object.keys(data).forEach(k => {
+      Object.keys(data).forEach((k) => {
         result[k] = { ...(data as any)[k] };
       });
 
       // Apply pending transactions on top of the canon version
-      pendingTransactions.forEach(function(transaction) {
+      pendingTransactions.forEach(function (transaction) {
         if ("delta" in transaction) {
           const prev = result[transaction.kind][transaction.id];
           // If we have not fetched the item yet,
@@ -61,17 +61,17 @@ export function optimisticUi<Domain>(params: Params<Domain>) {
           if (!prev) return;
           result[transaction.kind][transaction.id] = {
             revision: "optimistic",
-            value: transaction.delta(prev.value)
+            value: transaction.delta(prev.value),
           };
         } else {
           result[transaction.kind][transaction.id] = {
             revision: "optimistic",
-            value: transaction.creation
+            value: transaction.creation,
           };
         }
       });
 
       return result;
-    }
+    },
   };
 }

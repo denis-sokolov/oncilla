@@ -23,6 +23,6 @@ export function configure<Domain>(configuration: Configuration<Domain>) {
       return { db, withDB };
     },
     SemiControlledInput: makeSemiControlledInput(React),
-    useTryDB
+    useTryDB,
   };
 }

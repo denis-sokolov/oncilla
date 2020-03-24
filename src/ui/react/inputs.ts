@@ -13,19 +13,19 @@ export function makeSemiControlledInput(React: ReactType) {
     const [valueUnderEdit, setValueUnderEdit] = React.useState(value);
     return React.createElement("input", {
       ...props,
-      onBlur: e => {
+      onBlur: (e) => {
         if (onChange && valueUnderEdit !== value)
           onChange({ target: e.target } as React.ChangeEvent<HTMLInputElement>);
         if (onBlur) onBlur(e);
         setFocused(false);
       },
-      onChange: e => setValueUnderEdit(e.target.value),
-      onFocus: e => {
+      onChange: (e) => setValueUnderEdit(e.target.value),
+      onFocus: (e) => {
         setValueUnderEdit(value);
         setFocused(true);
         if (onFocus) onFocus(e);
       },
-      value: focused ? valueUnderEdit : value
+      value: focused ? valueUnderEdit : value,
     });
   };
 }

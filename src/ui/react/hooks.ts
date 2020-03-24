@@ -27,7 +27,7 @@ type Changer<T> = [T | "loading", Updater<T>];
 function makeMassUpdater<Domain, K extends keyof Domain>(
   db: FullDB<Domain>
 ): MassUpdater<Domain, K> {
-  const updater: MassUpdaterInternal<Domain, K> = function(
+  const updater: MassUpdaterInternal<Domain, K> = function (
     _options,
     kind,
     id,
@@ -44,12 +44,12 @@ function makeUpdater<Domain, K extends keyof Domain>(
   kind: K,
   id: string
 ): Updater<Domain[K]> {
-  const updater: UpdaterInternal<Domain[K]> = function(options, delta) {
+  const updater: UpdaterInternal<Domain[K]> = function (options, delta) {
     massUpdater(options, kind, id, delta);
   };
   return ((a: any, b?: any) => {
     if (typeof a === "string")
-      return updater({}, prev => ({ ...prev, [a]: b }));
+      return updater({}, (prev) => ({ ...prev, [a]: b }));
     updater(b ? a : {}, b || a);
   }) as any;
 }
@@ -61,13 +61,13 @@ export function makeHooks<Domain>(params: {
   const { React, useTryDB } = params;
 
   function useRerender(): () => void {
-    const [, rerender] = React.useReducer(x => x + 1, 0);
+    const [, rerender] = React.useReducer((x) => x + 1, 0);
     return () => {
       rerender({});
     };
   }
 
-  const useDataMap = function<K extends keyof Domain>(
+  const useDataMap = function <K extends keyof Domain>(
     definition: { [k in K]: string[] }
   ): [
     { [k in K]: { [id: string]: Domain[k] } } | "loading",
@@ -80,8 +80,8 @@ export function makeHooks<Domain>(params: {
       );
 
     const items = flat(
-      (Object.keys(definition) as K[]).map(kind =>
-        definition[kind].map(id => ({ kind, id }))
+      (Object.keys(definition) as K[]).map((kind) =>
+        definition[kind].map((id) => ({ kind, id }))
       )
     );
     const definitionHash = JSON.stringify(definition);
@@ -89,7 +89,7 @@ export function makeHooks<Domain>(params: {
     const rerender = useRerender();
     React.useEffect(
       () =>
-        db._internals.events.on("change", function(k) {
+        db._internals.events.on("change", function (k) {
           if (items.some(({ kind, id }) => kind === k[0] && id === k[1]))
             rerender();
         }),
@@ -98,7 +98,7 @@ export function makeHooks<Domain>(params: {
 
     React.useEffect(() => {
       const cancels = items.map(({ kind, id }) => db.observe(kind, id));
-      return () => cancels.forEach(f => f());
+      return () => cancels.forEach((f) => f());
     }, [definitionHash]);
 
     const allData = db._internals.withPendingTransactions(
@@ -121,7 +121,7 @@ export function makeHooks<Domain>(params: {
 
     return [
       isLoaded ? data : "loading",
-      React.useCallback(makeMassUpdater(db), [db])
+      React.useCallback(makeMassUpdater(db), [db]),
     ];
   };
 
@@ -142,28 +142,28 @@ export function makeHooks<Domain>(params: {
       return db.connectivity();
     },
 
-    useCreate: function<K extends keyof Domain>(kind: K) {
+    useCreate: function <K extends keyof Domain>(kind: K) {
       const db = useTryDB();
       if (db === "missing-provider")
         throw new Error(
           "The component you render needs a DBProvider grand-parent"
         );
 
-      return function(id: string, value: Domain[K]) {
+      return function (id: string, value: Domain[K]) {
         db.create(kind, id, value);
       };
     },
 
-    useData: function<K extends keyof Domain>(
+    useData: function <K extends keyof Domain>(
       kind: K,
       id: string
     ): Changer<Domain[K]> {
       const [data, update] = useDataMap<K>({
-        [kind]: [id]
+        [kind]: [id],
       } as { [k in K]: string[] });
       return [
         data === "loading" ? "loading" : data[kind][id],
-        makeUpdater(update, kind, id)
+        makeUpdater(update, kind, id),
       ];
     },
 
@@ -175,13 +175,13 @@ export function makeHooks<Domain>(params: {
       (id: string, delta: (prev: Domain[K]) => Domain[K]) => void
     ] {
       const definition: { [k in keyof Domain]: string[] } = {
-        [kind]: ids
+        [kind]: ids,
       } as any;
       const [data, update] = useDataMap<K>(definition);
       return [
         data === "loading" ? "loading" : data[kind],
         (id: string, delta: (prev: Domain[K]) => Domain[K]) =>
-          update(kind, id, delta)
+          update(kind, id, delta),
       ];
     },
 
@@ -202,10 +202,10 @@ export function makeHooks<Domain>(params: {
 
       return [
         debugConfig,
-        React.useCallback(function(updates: Partial<DebugConfig>) {
+        React.useCallback(function (updates: Partial<DebugConfig>) {
           Object.assign(debugConfig, updates);
           events.emit("debug-config-changed", undefined);
-        }, [])
+        }, []),
       ];
     },
 
@@ -226,6 +226,6 @@ export function makeHooks<Domain>(params: {
 
       if (db === "missing-provider") return 0;
       return db._internals.pendingTransactionCount();
-    }
+    },
   };
 }

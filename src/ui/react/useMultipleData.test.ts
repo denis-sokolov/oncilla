@@ -1,16 +1,16 @@
 import test from "ava";
 import { build } from "./mocks";
 
-test("useMultipleData sanity test", t => {
+test("useMultipleData sanity test", (t) => {
   const { useMultipleData } = build(t, {
     tasks: {
       "1": { revision: "1", value: "Buy milk" },
-      "2": { revision: "1", value: "Fix roof" }
+      "2": { revision: "1", value: "Fix roof" },
     },
     projects: {
-      "1": { revision: "1", value: { size: "big" } }
+      "1": { revision: "1", value: { size: "big" } },
     },
-    unused: { "0": { revision: "1", value: "Unused" } }
+    unused: { "0": { revision: "1", value: "Unused" } },
   });
 
   const [tasks, updateTask] = useMultipleData("tasks", ["1", "2"]);

@@ -9,7 +9,7 @@ function makeCounters() {
     [k: string]: { count: number; cancel: () => void };
   } = {};
   return {
-    add: function(a: string, b: string, f: () => () => void) {
+    add: function (a: string, b: string, f: () => () => void) {
       const kind = stringify(a, b);
 
       // Cancellation is still not in the protocol,
@@ -30,7 +30,7 @@ function makeCounters() {
       //     };
       //   }
       // };
-    }
+    },
   };
 }
 
@@ -50,11 +50,11 @@ export function sync<Domain>(params: Params<Domain>) {
     onChange,
     onConnectivityChange,
     onError,
-    shouldCrashWrites
+    shouldCrashWrites,
   } = params;
 
   const connectivity = makeConnectivity({
-    onConnectivityChange
+    onConnectivityChange,
   });
 
   const pushesInFlight: {
@@ -62,7 +62,7 @@ export function sync<Domain>(params: Params<Domain>) {
   } = {};
 
   const net = network({
-    onChange: function({ kind, id, revision, value }) {
+    onChange: function ({ kind, id, revision, value }) {
       canonData[kind][id] = { revision, value };
       onChange(kind, id);
     },
@@ -72,37 +72,37 @@ export function sync<Domain>(params: Params<Domain>) {
       if (!pushesInFlight[pushId]) return;
       pushesInFlight[pushId](result);
       delete pushesInFlight[pushId];
-    }
+    },
   });
 
   const push = makePush({
     canonData,
-    onError: err => {
+    onError: (err) => {
       connectivity.set("crashed");
       throw err;
     },
-    onNetPush: params =>
-      new Promise<PushResult<Domain[any]>>(resolve => {
+    onNetPush: (params) =>
+      new Promise<PushResult<Domain[any]>>((resolve) => {
         pushesInFlight[params.pushId] = resolve;
         net.push(params);
       }),
     onUpdate: ({ kind, id, newValue, newRevision }) => {
       canonData[kind][id] = {
         revision: newRevision,
-        value: newValue
+        value: newValue,
       };
     },
-    shouldCrashWrites
+    shouldCrashWrites,
   });
 
   const counters = makeCounters();
   return {
     connectivity: connectivity.get,
     observe: <K extends keyof Domain>(kind: K, id: string) => {
-      return counters.add(kind as string, id, function() {
+      return counters.add(kind as string, id, function () {
         return net.getAndObserve(kind, id);
       });
     },
-    push
+    push,
   };
 }

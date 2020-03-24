@@ -9,6 +9,6 @@ export type Serialization = {
 };
 
 export const jsonSerialization: Serialization = {
-  encode: value => JSON.stringify(value),
-  decode: string => JSON.parse(string)
+  encode: (value) => JSON.stringify(value),
+  decode: (string) => JSON.parse(string),
 };

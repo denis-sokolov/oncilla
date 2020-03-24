@@ -11,7 +11,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
   const events = new NanoEvents<{ change: KV }>();
 
   const latestCopies: { [stringy: string]: undefined | ValueContainer } = {};
-  events.on("change", kv => {
+  events.on("change", (kv) => {
     latestCopies[stringy(kv)] = kv.value;
   });
 
@@ -21,7 +21,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     close: () => void,
     onData: (value: ValueContainer) => void
   ): () => void {
-    const cancel = events.on("change", eventKV => {
+    const cancel = events.on("change", (eventKV) => {
       if (stringy(key) === stringy(eventKV)) {
         onData(eventKV.value);
       }
@@ -35,7 +35,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     onRequestData({
       ...key,
       close: close,
-      send: value => events.emit("change", { ...key, value })
+      send: (value) => events.emit("change", { ...key, value }),
     });
     return cancel;
   }
@@ -44,7 +44,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
     params._ws ||
     new WebSocket.Server({
       port: params.port,
-      server: params.server
+      server: params.server,
     });
 
   function heartbeat(this: any) {
@@ -71,9 +71,9 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
       }
     );
   }, 60000);
-  server.on("connection", function(socket: WebSocket & { isAlive?: boolean }) {
+  server.on("connection", function (socket: WebSocket & { isAlive?: boolean }) {
     const authQueue = makeAuthQueue<AuthDetails>({
-      onTerminate: () => socket.terminate()
+      onTerminate: () => socket.terminate(),
     });
 
     let latestToken: string | undefined;
@@ -103,18 +103,18 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
 
     const handlers: { [action: string]: (msg: any) => void } = {
       ping: () => send({ action: "pong" }),
-      auth: msg => {
+      auth: (msg) => {
         latestToken = msg.token;
         evaluateToken();
       },
-      push: async msg => {
+      push: async (msg) => {
         const { kind, id, lastSeenRevision, value } = msg;
         if (auth) {
           const details = await authQueue.details();
           if (!auth.canWrite({ auth: details, kind, id })) {
             send({
               action: "clientError",
-              message: `Tried to write ${kind} ${id} without permission`
+              message: `Tried to write ${kind} ${id} without permission`,
             });
             return;
           }
@@ -124,14 +124,14 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
           lastSeenRevision,
           id,
           value: serialization.decode(value, { kind, id }),
-          close: () => socket.terminate()
+          close: () => socket.terminate(),
         })
-          .then(function(result) {
+          .then(function (result) {
             if (result === "conflict")
               send({
                 action: "pushResult",
                 pushId: msg.pushId,
-                result: result
+                result: result,
               });
             else {
               send({
@@ -141,36 +141,36 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
                 pushId: msg.pushId,
                 result: "success",
                 newRevision: result.newRevision,
-                newValue: serialization.encode(result.newValue, { id, kind })
+                newValue: serialization.encode(result.newValue, { id, kind }),
               });
               events.emit("change", {
                 kind,
                 id,
-                value: { revision: result.newRevision, value: result.newValue }
+                value: { revision: result.newRevision, value: result.newValue },
               });
             }
           })
-          .catch(function(err) {
+          .catch(function (err) {
             send({
               action: "pushResult",
               pushId: msg.pushId,
-              result: "internalError"
+              result: "internalError",
             });
             throw err;
           });
       },
-      subscribe: msg => {
+      subscribe: (msg) => {
         const { id, kind } = msg;
         const cancel = getAndObserve(
           { kind, id },
           () => socket.terminate(),
-          async v => {
+          async (v) => {
             if (auth) {
               const details = await authQueue.details();
               if (!auth.canRead({ auth: details, kind, id })) {
                 send({
                   action: "clientError",
-                  message: `Tried to read ${kind} ${id} without permission`
+                  message: `Tried to read ${kind} ${id} without permission`,
                 });
                 return;
               }
@@ -180,12 +180,12 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
               id,
               kind,
               revision: v.revision,
-              value: serialization.encode(v.value, { id, kind })
+              value: serialization.encode(v.value, { id, kind }),
             });
           }
         );
         socket.on("close", cancel);
-      }
+      },
     };
 
     const handleMsg = (msg: any) => {

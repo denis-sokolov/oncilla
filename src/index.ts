@@ -3,5 +3,5 @@ export {
   makeDummyAdapter,
   makeWsProtocolAdapter,
   Connectivity,
-  NetworkAdapter
+  NetworkAdapter,
 } from "./network";

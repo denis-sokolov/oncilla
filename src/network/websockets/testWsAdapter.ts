@@ -4,21 +4,21 @@ import ReconnectingWebSocket from "reconnecting-websocket";
 export default function testWsAdapter() {
   const sentMessages: { action: string; [k: string]: any }[] = [];
   const partialSocket: Partial<ReconnectingWebSocket> = {
-    send: data => {
+    send: (data) => {
       sentMessages.push(JSON.parse(String(data)));
-    }
+    },
   };
   const socket = partialSocket as ReconnectingWebSocket;
   const sock = socket as any;
   const wsp = makeWsProtocolAdapter({
     url: "",
-    _socket: socket
+    _socket: socket,
   });
   const adapter = wsp.adapter({
     onChange: () => {},
     onConnectivityChange: () => {},
     onError: () => {},
-    onPushResult: () => {}
+    onPushResult: () => {},
   });
   return {
     adapter,
@@ -31,6 +31,6 @@ export default function testWsAdapter() {
       if (socket.onopen) socket.onopen({} as any);
       sock.readyState = 1;
     },
-    sentMessages
+    sentMessages,
   };
 }

@@ -3,26 +3,26 @@ import test from "ava";
 import { makeWindowMock } from "../ui/mocks";
 import { create } from "./create";
 
-test.cb("update with optimistic ui", t => {
+test.cb("update with optimistic ui", (t) => {
   const oncilla = create({
     initialData: {
       taskList: {
-        singleton: { revision: "0", value: [] as string[] }
+        singleton: { revision: "0", value: [] as string[] },
       },
       taskCount: {
-        singleton: { revision: "0", value: 0 }
-      }
+        singleton: { revision: "0", value: 0 },
+      },
     },
     network: () => {
       return {
         getAndObserve: () => () => {},
-        push: () => {}
+        push: () => {},
       };
     },
-    window: makeWindowMock()
+    window: makeWindowMock(),
   });
   oncilla.observe("taskList", "singleton");
-  oncilla._internals.events.on("change", function(k) {
+  oncilla._internals.events.on("change", function (k) {
     if (k[0] !== "taskList") return;
     const kind = "taskList";
     const id = "singleton";
@@ -33,5 +33,5 @@ test.cb("update with optimistic ui", t => {
     t.deepEqual(atom.value, ["Buy milk"]);
     t.end();
   });
-  oncilla.update("taskList", "singleton", prev => prev.concat(["Buy milk"]));
+  oncilla.update("taskList", "singleton", (prev) => prev.concat(["Buy milk"]));
 });
