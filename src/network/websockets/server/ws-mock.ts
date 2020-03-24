@@ -3,7 +3,7 @@ import { Server } from "ws";
 type Message = { action: string; [k: string]: any };
 
 export function makeWsMock() {
-  let connectionListener: (socket: WebSocket) => void;
+  let connectionListener: ((socket: WebSocket) => void) | null;
   const server: Server = ({
     clients: new Set(),
     on: function (event: string, cb: Function) {
@@ -31,6 +31,7 @@ export function makeWsMock() {
         readyState: 1,
         send: (data: string) => onServerMessage(JSON.parse(data)),
       } as Partial<WebSocket>) as WebSocket;
+      if (!connectionListener) throw new Error("Not implemented");
       connectionListener(socket);
       return {
         send: (msg: Message) =>
