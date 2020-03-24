@@ -20,13 +20,13 @@
   "dependencies": {
     "nanoevents": "^2.0.0",
     "reconnecting-websocket": "^4.2.0",
-    "ws": "^7.1.1"
+    "ws": "^7.2.3"
   },
   "devDependencies": {
     "@theorem/eslint-plugin": "^2.0.2",
     "@types/nanoevents": "^1.0.0",
     "@types/react": "^16.8.13",
-    "@types/ws": "^6.0.1",
+    "@types/ws": "^7.2.3",
     "ava": "^3.5.1",
     "eslint": "^6.8.0",
     "html-webpack-plugin": "^3.2.0",
