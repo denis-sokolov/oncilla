@@ -12,7 +12,7 @@ export function build<D extends Data<any>>(t: ExecutionContext, data: D) {
     React: react,
   });
   const { db } = configured.create({
-    network: makeDummyAdapter(data),
+    network: makeDummyAdapter<Domain>(data),
     onError: (err) => t.fail(err.message),
     window: makeWindowMock(),
   });
