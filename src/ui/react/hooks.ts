@@ -115,7 +115,8 @@ export function makeHooks<Domain>(params: {
           throw new Error(
             `Oncilla internal consistency error, unexpectedly missing ${kind}-${id} in the data`
           );
-        data[kind][id] = atom.value;
+        const kindCollection: { [k: string]: Domain[typeof kind] } = data[kind];
+        kindCollection[id] = atom.value;
       });
     }
 

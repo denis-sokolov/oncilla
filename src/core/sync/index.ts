@@ -1,5 +1,5 @@
 import { NetworkAdapter, PushResult } from "../../network/types";
-import { Data } from "../types";
+import { Data, DataKindCollection } from "../types";
 import { makeConnectivity } from "./connectivity";
 import { makePush } from "./push";
 
@@ -63,7 +63,9 @@ export function sync<Domain>(params: Params<Domain>) {
 
   const net = network({
     onChange: function ({ kind, id, revision, value }) {
-      canonData[kind][id] = { revision, value };
+      const kindCollection: DataKindCollection<Domain[typeof kind]> =
+        canonData[kind];
+      kindCollection[id] = { revision, value };
       onChange(kind, id);
     },
     onConnectivityChange: connectivity.set,
@@ -87,7 +89,9 @@ export function sync<Domain>(params: Params<Domain>) {
         net.push(params);
       }),
     onUpdate: ({ kind, id, newValue, newRevision }) => {
-      canonData[kind][id] = {
+      const kindCollection: DataKindCollection<Domain[typeof kind]> =
+        canonData[kind];
+      kindCollection[id] = {
         revision: newRevision,
         value: newValue,
       };

@@ -32,9 +32,11 @@ export type FullDB<Domain> = {
 };
 
 export type Data<Domain> = {
-  [k in keyof Domain]: {
-    [id: string]: { revision: string; value: Domain[k] } | undefined;
-  };
+  [k in keyof Domain]: DataKindCollection<Domain[k]>;
+};
+
+export type DataKindCollection<Value> = {
+  [id: string]: { revision: string; value: Value } | undefined;
 };
 
 export type Delta<Domain, K extends keyof Domain> = (

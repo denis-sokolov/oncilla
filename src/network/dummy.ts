@@ -45,7 +45,9 @@ export function makeDummyAdapter<Domain>(
         }
         locks.add(lockKey);
         setTimeout(() => {
-          data[kind][id] = value;
+          const kindCollection: { [k: string]: Domain[typeof kind] } =
+            data[kind];
+          kindCollection[id] = value;
           onChange({ kind, id, revision: "dummy", value });
           onPushResult(pushId, { newRevision: "dummy", newValue: value });
           locks.delete(lockKey);
