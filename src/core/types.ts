@@ -1,4 +1,4 @@
-import type NanoEvents from "nanoevents";
+import type { Emitter } from "nanoevents";
 import type { Connectivity, NetworkAdapter } from "../network/types";
 
 export { Connectivity } from "../network/types";
@@ -13,7 +13,7 @@ export type FullDB<Domain> = {
   _internals: {
     canonData: Data<Domain>;
     debugConfig: DebugConfig;
-    events: NanoEvents<Events<Domain>>;
+    events: Emitter<EventsForNano<Domain>>;
     pendingTransactionCount: () => number;
     withPendingTransactions: (data: Data<Domain>) => Data<Domain>;
   };
@@ -54,6 +54,10 @@ export type Events<Domain> = {
   "debug-config-changed": undefined;
   "pending-transaction-count-changed": undefined;
   "connectivity-changed": undefined;
+};
+
+export type EventsForNano<Domain> = {
+  [K in keyof Events<Domain>]: (param: Events<Domain>[K]) => void;
 };
 
 export type Transaction<Domain, K extends keyof Domain = keyof Domain> = {

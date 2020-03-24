@@ -18,7 +18,7 @@
     "verify": "npm run typecheck && npm run format-verify && npm run lint && npm run test"
   },
   "dependencies": {
-    "nanoevents": "^2.0.0",
+    "nanoevents": "^5.1.5",
     "reconnecting-websocket": "^4.4.0",
     "ws": "^7.2.3"
   },

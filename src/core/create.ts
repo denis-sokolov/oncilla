@@ -1,4 +1,4 @@
-import NanoEvents from "nanoevents";
+import { createNanoEvents } from "nanoevents";
 import { optimisticUi } from "./optimisticUi";
 import { sync } from "./sync";
 import type {
@@ -6,7 +6,7 @@ import type {
   Data,
   DebugConfig,
   FullDB,
-  Events,
+  EventsForNano,
   Transaction,
 } from "./types";
 
@@ -31,7 +31,7 @@ export function create<Domain>(
 
   const canonData = initialData;
 
-  const events = new NanoEvents<Events<Domain>>();
+  const events = createNanoEvents<EventsForNano<Domain>>();
 
   const { connectivity, observe, push } = sync<Domain>({
     canonData,

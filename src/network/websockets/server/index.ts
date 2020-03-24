@@ -1,4 +1,4 @@
-import NanoEvents from "nanoevents";
+import { createNanoEvents } from "nanoevents";
 import WebSocket from "ws";
 import { jsonSerialization } from "../serialization";
 import { makeAuthQueue } from "./authQueue";
@@ -8,7 +8,7 @@ export function runWebsocketServer<AuthDetails>(params: Params<AuthDetails>) {
   const { auth, onChangeData, onRequestData } = params;
   const serialization = params.serialization || jsonSerialization;
 
-  const events = new NanoEvents<{ change: KV }>();
+  const events = createNanoEvents<{ change: (param: KV) => void }>();
 
   const latestCopies: { [stringy: string]: undefined | ValueContainer } = {};
   events.on("change", (kv) => {
