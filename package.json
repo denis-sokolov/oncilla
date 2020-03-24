@@ -36,9 +36,9 @@
     "tslint": "^6.1.0",
     "tslint-no-circular-imports": "^0.7.0",
     "typescript": "^3.8.0",
-    "webpack": "^4.41.5",
-    "webpack-cli": "^3.3.10",
-    "webpack-dev-server": "^3.10.1"
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11",
+    "webpack-dev-server": "^3.10.3"
   },
   "browser": "dist/index.js",
   "engines": {
