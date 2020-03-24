@@ -63,7 +63,7 @@ export function makeHooks<Domain>(params: {
   function useRerender(): () => void {
     const [, rerender] = React.useReducer((x) => x + 1, 0);
     return () => {
-      rerender({});
+      rerender();
     };
   }
 
