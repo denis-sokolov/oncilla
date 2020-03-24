@@ -1,4 +1,4 @@
-import { NetworkAdapter } from "./types";
+import type { NetworkAdapter } from "./types";
 
 type OnMissing<Domain> = <K extends keyof Domain>(
   kind: K,

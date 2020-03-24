@@ -1,6 +1,6 @@
 import ava, { ExecutionContext } from "ava";
 
-import { Connectivity } from "../types";
+import type { Connectivity } from "../types";
 import { sync as makeSync } from "./index";
 
 const sleep = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

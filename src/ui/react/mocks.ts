@@ -1,7 +1,7 @@
-import { ExecutionContext } from "ava";
+import type { ExecutionContext } from "ava";
 import React from "react";
 import { configure } from "./configure";
-import { Data } from "../../core";
+import type { Data } from "../../core";
 import { makeDummyAdapter, makeWindowMock } from "../mocks";
 
 export function build<D extends Data<any>>(t: ExecutionContext, data: D) {

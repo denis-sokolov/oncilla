@@ -1,5 +1,5 @@
-import { DebugConfig, FullDB } from "../../core";
-import { ReactType } from "./types";
+import type { DebugConfig, FullDB } from "../../core";
+import type { ReactType } from "./types";
 
 function flat<T>(list: T[][]): T[] {
   return list.reduce((a, b) => a.concat(b));

@@ -1,4 +1,4 @@
-import { ReactType } from "./types";
+import type { ReactType } from "./types";
 
 export function makeSemiControlledInput(React: ReactType) {
   return function SemiControlledInput(

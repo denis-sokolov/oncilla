@@ -1,5 +1,5 @@
 import { makeWsProtocolAdapter } from ".";
-import ReconnectingWebSocket from "reconnecting-websocket";
+import type ReconnectingWebSocket from "reconnecting-websocket";
 
 export default function testWsAdapter() {
   const sentMessages: { action: string; [k: string]: any }[] = [];

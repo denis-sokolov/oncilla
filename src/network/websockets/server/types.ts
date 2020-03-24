@@ -1,6 +1,6 @@
-import { Server as HttpServer } from "http";
-import { Server as WsServer } from "ws";
-import { Serialization } from "../serialization";
+import type { Server as HttpServer } from "http";
+import type { Server as WsServer } from "ws";
+import type { Serialization } from "../serialization";
 
 export const stringy = ({ kind, id }: K) => `${kind}-${id}`;
 

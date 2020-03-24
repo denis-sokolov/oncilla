@@ -1,5 +1,5 @@
-import NanoEvents from "nanoevents";
-import { Connectivity, NetworkAdapter } from "../network/types";
+import type NanoEvents from "nanoevents";
+import type { Connectivity, NetworkAdapter } from "../network/types";
 
 export { Connectivity } from "../network/types";
 

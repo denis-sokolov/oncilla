@@ -1,4 +1,4 @@
-import { Server } from "ws";
+import type { Server } from "ws";
 
 type Message = { action: string; [k: string]: any };
 

@@ -1,7 +1,7 @@
 import NanoEvents from "nanoevents";
 import { optimisticUi } from "./optimisticUi";
 import { sync } from "./sync";
-import {
+import type {
   CreateParams,
   Data,
   DebugConfig,

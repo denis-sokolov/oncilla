@@ -4,7 +4,7 @@
  * without jumping back and forth too often.
  */
 
-import { Connectivity } from "../types";
+import type { Connectivity } from "../types";
 
 export function makeConnectivity(params: { onConnectivityChange: () => void }) {
   const { onConnectivityChange } = params;

@@ -2,7 +2,7 @@ import { create, CreateParams, Data } from "../../core";
 import { createContext } from "./context";
 import { makeHooks } from "./hooks";
 import { makeSemiControlledInput } from "./inputs";
-import { ReactType } from "./types";
+import type { ReactType } from "./types";
 
 type Configuration<Domain> = {
   data: Data<Domain>;

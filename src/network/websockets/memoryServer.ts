@@ -1,8 +1,8 @@
-import { Server as HttpServer } from "http";
+import type { Server as HttpServer } from "http";
 
-import { Data } from "../../core";
+import type { Data } from "../../core";
 
-import { Serialization } from "./serialization";
+import type { Serialization } from "./serialization";
 import { runWebsocketServer } from "./server";
 
 const wait = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));

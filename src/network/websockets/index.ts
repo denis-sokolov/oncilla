@@ -1,5 +1,5 @@
 import ReconnectingWebSocket from "reconnecting-websocket";
-import { NetworkAdapter } from "../types";
+import type { NetworkAdapter } from "../types";
 import { Serialization, jsonSerialization } from "./serialization";
 
 type Params = {

@@ -1,5 +1,5 @@
-import { PushResult } from "../../network/types";
-import { Data, Transaction, TransactionAction } from "../types";
+import type { PushResult } from "../../network/types";
+import type { Data, Transaction, TransactionAction } from "../types";
 import { makeKindIdStore } from "./kindIdStore";
 import { makeThrottled } from "./throttled";
 

@@ -1,4 +1,4 @@
-import { Data, Transaction } from "./types";
+import type { Data, Transaction } from "./types";
 
 type Params<Domain> = {
   commitTransaction: (transaction: Transaction<Domain>) => Promise<void>;

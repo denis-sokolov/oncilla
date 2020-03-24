@@ -1,5 +1,5 @@
-import { NetworkAdapter, PushResult } from "../../network/types";
-import { Data, DataKindCollection } from "../types";
+import type { NetworkAdapter, PushResult } from "../../network/types";
+import type { Data, DataKindCollection } from "../types";
 import { makeConnectivity } from "./connectivity";
 import { makePush } from "./push";
 
