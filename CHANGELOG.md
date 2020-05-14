@@ -1,3 +1,7 @@
+# 5.4.3
+
+- Maintenance release
+
 # 5.4.2
 
 - Maintenance release
