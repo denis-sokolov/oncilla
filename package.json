@@ -23,7 +23,7 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
-    "@theorem/eslint-plugin": "^2.0.2",
+    "@theorem/eslint-plugin": "^4.0.0",
     "@types/nanoevents": "^1.0.0",
     "@types/react": "^16.9.35",
     "@types/ws": "^7.2.4",
