@@ -11,10 +11,12 @@ type MassUpdaterInternal<Domain, K extends keyof Domain> = (
   id: string,
   delta: (prev: Domain[K]) => Domain[K]
 ) => void;
-export interface MassUpdater<Domain, K extends keyof Domain>
-  extends MassUpdaterInternal<Domain, K> {
+export type MassUpdater<Domain, K extends keyof Domain> = MassUpdaterInternal<
+  Domain,
+  K
+> & {
   (kind: K, id: string, delta: (prev: Domain[K]) => Domain[K]): void;
-}
+};
 
 type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
 export type Updater<T> = UpdaterInternal<T> & {
