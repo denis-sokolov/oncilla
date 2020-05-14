@@ -1,6 +1,6 @@
 {
   "name": "oncilla",
-  "version": "5.4.2",
+  "version": "5.4.3",
   "description": "Client-side database for real-time and optimistic UI",
   "scripts": {
     "build": "rm -rf dist && NODE_ENV=production tsc --project tsconfig.build.json",
