@@ -1,3 +1,7 @@
+# 5.5.0
+
+- Support IE11 syntactically
+
 # 5.4.3
 
 - Maintenance release
