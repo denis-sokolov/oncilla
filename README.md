@@ -65,7 +65,7 @@ PouchDB brings a lot of battle-tested power to the table, but it relies on the C
 
 Oncilla is in essence GraphQL live queries with no or very limited data dependencies, and a client-side oriented source of truth. For a more powerful approach with GraphQL live queries, see [the discussion on the spec](https://github.com/graphql/graphql-spec/issues/386) and a [good introductory video](https://www.youtube.com/watch?v=BSw05rJaCpA).
 
-Other projects of interest: [Falcor](https://netflix.github.io/falcor/), upcoming Apollo Client 3.
+Other projects of interest: [Falcor](https://netflix.github.io/falcor/), Apollo Client 3, [Automerge](https://github.com/automerge/automerge)
 
 ## About Theorem
 
