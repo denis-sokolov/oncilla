@@ -12,7 +12,6 @@
   "scripts": {
     "start-server": "ts-node -T src/server.ts",
     "build": "rm -rf dist && NODE_ENV=production tsc",
-    "ci": "npm run verify",
     "prepublishOnly": "npm run verify && npm run build",
     "start-building": "rm -rf dist && NODE_ENV=production tsc --watch",
     "typecheck": "tsc --noEmit",
