@@ -1,47 +1,12 @@
 import type { DebugConfig, FullDB } from "../../../core";
 import type { ReactType } from "../types";
-import type {
-  Changer,
-  MassUpdater,
-  MassUpdaterInternal,
-  Updater,
-  UpdaterInternal,
-} from "./types";
+import { makeMassUpdater, makeUpdater } from "./updater";
+import type { Changer, MassUpdater } from "./types";
 
 export type { MassUpdater, Updater } from "./types";
 
 function flat<T>(list: T[][]): T[] {
   return list.reduce((a, b) => a.concat(b));
-}
-
-function makeMassUpdater<Domain, K extends keyof Domain>(
-  db: FullDB<Domain>
-): MassUpdater<Domain, K> {
-  const updater: MassUpdaterInternal<Domain, K> = function (
-    _options,
-    kind,
-    id,
-    delta
-  ) {
-    db.update(kind, id, delta);
-  };
-  return (a: any, b: any, c: any, d?: any) =>
-    d ? updater(a, b, c, d) : updater({}, a, b, c);
-}
-
-function makeUpdater<Domain, K extends keyof Domain>(
-  massUpdater: MassUpdater<Domain, K>,
-  kind: K,
-  id: string
-): Updater<Domain[K]> {
-  const updater: UpdaterInternal<Domain[K]> = function (options, delta) {
-    massUpdater(options, kind, id, delta);
-  };
-  return ((a: any, b?: any) => {
-    if (typeof a === "string")
-      return updater({}, (prev) => ({ ...prev, [a]: b }));
-    updater(b ? a : {}, b || a);
-  }) as any;
 }
 
 export function makeHooks<Domain>(params: {
