@@ -9,7 +9,6 @@
     "verify": "npm run typecheck"
   },
   "devDependencies": {
-    "gts": "^1.0.0",
     "typescript": "~3.4.0"
   },
   "dependencies": {
