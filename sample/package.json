@@ -1,5 +1,5 @@
 {
-  "name": "",
+  "name": "oncilla-sample",
   "scripts": {
     "start-server": "ts-node -T src/server.ts",
     "build": "rm -rf dist && NODE_ENV=production tsc",
