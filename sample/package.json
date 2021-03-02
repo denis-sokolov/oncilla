@@ -13,17 +13,14 @@
     "start-server": "ts-node -T src/server.ts",
     "build": "rm -rf dist && NODE_ENV=production tsc",
     "ci": "npm run verify",
-    "format": "prettier --write '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
-    "format-verify": "prettier --check '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
     "lint": "tslint --project .",
     "prepublishOnly": "npm run verify && npm run build",
     "start-building": "rm -rf dist && NODE_ENV=production tsc --watch",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run format-verify && npm run lint"
+    "verify": "npm run typecheck && npm run lint"
   },
   "devDependencies": {
     "gts": "^1.0.0",
-    "prettier": "^1.18.2",
     "typescript": "~3.4.0"
   },
   "dependencies": {
