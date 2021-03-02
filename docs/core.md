@@ -11,7 +11,7 @@ You need to work with Oncilla core if you’re not using React. If you use React
 import { create } from "oncilla/core";
 const store = create({
   network: myNetworkAdapter(),
-  onError: error => showUserCrashScreen(error)
+  onError: (error) => showUserCrashScreen(error),
 });
 ```
 
@@ -35,7 +35,7 @@ Creating and updating values in the store is a synchronous operation that does n
 
 ```jsx
 store.create(kind, id, value);
-store.update(kind, id, prev => updated);
+store.update(kind, id, (prev) => updated);
 ```
 
 ### Read values
@@ -63,7 +63,7 @@ Beware, you are not allowed to mutate the canonData value.
 
 ```jsx
 // API subject to change
-db._internals.events.on("change", function([kind, id]) {
+db._internals.events.on("change", function ([kind, id]) {
   //
 });
 ```

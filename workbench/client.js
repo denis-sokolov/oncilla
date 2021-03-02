@@ -9,26 +9,26 @@ const {
   useData,
   useMultipleData,
   useOncillaDebug,
-  usePendingChanges
+  usePendingChanges,
 } = configure({
   data: {
-    things: {}
+    things: {},
   },
-  React
+  React,
 });
 
 const network = makeWsProtocolAdapter({
-  url: "ws://localhost:8091/"
+  url: "ws://localhost:8091/",
 });
 
 const { db } = create({
   network: network.adapter,
-  onError: err => {
+  onError: (err) => {
     throw err;
-  }
+  },
 });
 
-db._internals.events.on("change", function(c) {
+db._internals.events.on("change", function (c) {
   console.log(
     "change",
     c[0],

@@ -5,7 +5,7 @@ On the client side, use our custom Oncilla WebSocket adapter:
 ```js
 import { makeWsProtocolAdapter } from "oncilla";
 const network = makeWsProtocolAdapter({
-  url: "wss://example.com/"
+  url: "wss://example.com/",
 });
 ```
 
@@ -18,10 +18,10 @@ export function attachWebSockets(server: HttpServer) {
   runMemoryServer({
     initialData: {
       tasks: {
-        [taskId1]: { title: "Buy milk" }
-      }
+        [taskId1]: { title: "Buy milk" },
+      },
     },
-    port: 8090
+    port: 8090,
   });
 }
 ```
@@ -70,8 +70,8 @@ Both client and server support serialization options:
 ```js
 makeWsProtocolAdapter({
   serialization: {
-    encode: value => JSON.stringify(value),
-    decode: string => JSON.parse(string)
-  }
+    encode: (value) => JSON.stringify(value),
+    decode: (string) => JSON.parse(string),
+  },
 });
 ```

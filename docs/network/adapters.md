@@ -12,8 +12,8 @@ const initialData = {
   categories: { singleton: ["home", "studies", "fun"] },
   tasks: {
     a1: { title: "Buy milk", category: "home" },
-    a2: { title: "Learn next chapter", category: "studies" }
-  }
+    a2: { title: "Learn next chapter", category: "studies" },
+  },
 };
 const network = makeDummyAdapter(initialData);
 ```
@@ -30,8 +30,8 @@ const network = makeWsProtocolAdapter({
   // Optional, allows to modify how the items are serialized for transmitting over the network
   serialization: {
     encode: (value, { kind, id }) => JSON.stringify(value),
-    decode: (string, { kind, id }) => JSON.parse(string)
-  }
+    decode: (string, { kind, id }) => JSON.parse(string),
+  },
 });
 ```
 

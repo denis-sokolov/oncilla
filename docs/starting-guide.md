@@ -17,13 +17,13 @@ const {
   useData,
   useMultipleData,
   useOncillaDebug,
-  usePendingChanges
+  usePendingChanges,
 } = configure({
   data: {
     categories: {},
-    tasks: {}
+    tasks: {},
   },
-  React
+  React,
 });
 ```
 
@@ -31,7 +31,7 @@ If you use TypeScript, add a TypeScript type to help the compiler catch typing e
 
 ```ts
 configure<{ categories: Category; tasks: Task }>({
-  data: { categories: {}, tasks: {} }
+  data: { categories: {}, tasks: {} },
 });
 ```
 
@@ -43,8 +43,8 @@ const network = makeDummyAdapter({
   categories: { singleton: ["home", "studies", "fun"] },
   tasks: {
     a1: { title: "Buy milk", category: "home" },
-    a2: { title: "Learn next chapter", category: "studies" }
-  }
+    a2: { title: "Learn next chapter", category: "studies" },
+  },
 });
 ```
 

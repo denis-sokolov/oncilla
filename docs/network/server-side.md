@@ -20,29 +20,29 @@ runWebsocketServer({
     canRead: ({ authDetails, kind, id }) => true,
     canWrite: ({ authDetails, kind, id }) => true,
     // parseToken will be called multiple times over the course of one socket lifetime to refresh the permissions periodically
-    parseToken: async (token, { close }) => authDetails
+    parseToken: async (token, { close }) => authDetails,
   },
-  onRequestData: async function({ kind, id, send }) {
+  onRequestData: async function ({ kind, id, send }) {
     // Send an item immediately
     send(item);
 
     // And set up observation logic
     observe(kind, id, () => send(item));
   },
-  onChangeData: async function({ kind, id, lastSeenRevision, send, value }) {
+  onChangeData: async function ({ kind, id, lastSeenRevision, send, value }) {
     if (revisionOld) return "conflict";
 
     // It is up to you how you compute revisions and how you normalize values
     return {
       newRevision: "new revision for item",
-      newValue: "saved value"
+      newValue: "saved value",
     };
   },
 
   // Optional, allows to change the way the values are serialized to be transmitted over the network
   serialization: {
     encode: (value, { kind, id }) => JSON.stringify(value),
-    decode: (string, { kind, id }) => JSON.parse(string)
-  }
+    decode: (string, { kind, id }) => JSON.parse(string),
+  },
 });
 ```

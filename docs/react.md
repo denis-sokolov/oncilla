@@ -29,7 +29,7 @@ const initialData = {
   bolts: {},
   nails: {},
   // Start with one spring, id "s1"
-  springs: { s1: { name: "Bouncy" } }
+  springs: { s1: { name: "Bouncy" } },
 };
 ```
 
@@ -44,7 +44,7 @@ type DataShape = {
 };
 configure<DataShape>({
   data: initialData,
-  React: React
+  React: React,
 });
 ```
 
