@@ -1,8 +1,9 @@
+import type { ChangeEvent, InputHTMLAttributes } from "react";
 import type { ReactType } from "./types";
 
 export function makeSemiControlledInput(React: ReactType) {
   return function SemiControlledInput(
-    props: React.InputHTMLAttributes<HTMLInputElement>
+    props: InputHTMLAttributes<HTMLInputElement>
   ) {
     const { defaultValue, onBlur, onChange, onFocus, value } = props;
     if (defaultValue !== undefined)
@@ -15,7 +16,7 @@ export function makeSemiControlledInput(React: ReactType) {
       ...props,
       onBlur: (e) => {
         if (onChange && valueUnderEdit !== value)
-          onChange({ target: e.target } as React.ChangeEvent<HTMLInputElement>);
+          onChange({ target: e.target } as ChangeEvent<HTMLInputElement>);
         if (onBlur) onBlur(e);
         setFocused(false);
       },

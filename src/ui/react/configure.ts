@@ -1,3 +1,4 @@
+import type { ReactNode } from "react";
 import { create, CreateParams, Data } from "../../core";
 import { createContext } from "./context";
 import { makeHooks } from "./hooks";
@@ -18,7 +19,7 @@ export function configure<Domain>(configuration: Configuration<Domain>) {
     ...hooks,
     create: (params: CreateParams<Domain>) => {
       const db = create<Domain>({ ...params, initialData: data });
-      const withDB = (children: React.ReactNode) =>
+      const withDB = (children: ReactNode) =>
         React.createElement(Provider as any, { value: db, children: children });
       return { db, withDB };
     },
