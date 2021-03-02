@@ -4,22 +4,23 @@ import { makeWsMock } from "./ws-mock";
 
 test.cb("websocket server allows to read and write when auth allows", (t) => {
   const ws = makeWsMock();
+  let seenCorrectCanRead = false;
+  let seenCorrectCanWrite = false;
+  let seenCorrectParseToken = false;
   runWebsocketServer({
     auth: {
       canRead: ({ auth, kind, id }) => {
-        t.is(kind, "tasks");
-        t.is(id, "1");
-        t.is(auth, "john");
+        if (kind === "tasks" && id === "1" && auth === "john")
+          seenCorrectCanRead = true;
         return true;
       },
       canWrite: ({ auth, kind, id }) => {
-        t.is(kind, "tasks");
-        t.is(id, "1");
-        t.is(auth, "john");
+        if (kind === "tasks" && id === "1" && auth === "john")
+          seenCorrectCanWrite = true;
         return true;
       },
       parseToken: async (token) => {
-        t.is(token, "t1");
+        if (token === "t1") seenCorrectParseToken = true;
         return "john";
       },
     },
@@ -31,6 +32,9 @@ test.cb("websocket server allows to read and write when auth allows", (t) => {
   });
   const client = ws.client((msg) => {
     if (msg.action === "pushResult" && msg.newRevision === "2") {
+      t.true(seenCorrectCanRead);
+      t.true(seenCorrectCanWrite);
+      t.true(seenCorrectParseToken);
       t.end();
     }
   });
