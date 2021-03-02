@@ -1,7 +1,7 @@
 export type Connectivity = "online" | "connecting" | "offline" | "crashed";
 
 export type NetworkAdapter<Domain> = (params: {
-  onChange: <K extends keyof Domain>(params: {
+  onChange: <K extends keyof Domain>(details: {
     kind: K;
     id: string;
     revision: string;
@@ -15,7 +15,7 @@ export type NetworkAdapter<Domain> = (params: {
   ) => void;
 }) => {
   getAndObserve: <K extends keyof Domain>(kind: K, id: string) => () => void;
-  push: <K extends keyof Domain>(params: {
+  push: <K extends keyof Domain>(details: {
     kind: K;
     id: string;
     lastSeenRevision: string;
