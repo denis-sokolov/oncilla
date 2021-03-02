@@ -5,6 +5,7 @@ module.exports = {
     node: true,
   },
   extends: ["plugin:@theorem/opinionated"],
+  ignorePatterns: ["dist"],
   plugins: ["@theorem"],
   rules: {
     "@typescript-eslint/prefer-optional-chain": "off",

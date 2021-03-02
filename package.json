@@ -7,7 +7,7 @@
     "ci": "npm run verify",
     "format": "prettier --write '{src,typings}/**/*.{js,json,md,ts}' '*.{js,json,md,ts}'",
     "format-verify": "prettier --check '{src,typings}/**/*.{js,json,md,ts}' '*.{js,json,md,ts}'",
-    "lint": "eslint --ext js,jsx,ts,tsx src",
+    "lint": "eslint .",
     "prepublishOnly": "npm run verify && npm run build",
     "start": "ava --watch",
     "start-building": "rm -rf dist && NODE_ENV=production tsc --watch",
