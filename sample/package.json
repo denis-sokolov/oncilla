@@ -17,14 +17,11 @@
     "format-verify": "prettier --check '{src,typings}/**/*.{json,md,ts}' *.{json,md,ts}",
     "lint": "tslint --project .",
     "prepublishOnly": "npm run verify && npm run build",
-    "start": "ava --watch",
     "start-building": "rm -rf dist && NODE_ENV=production tsc --watch",
-    "test": "ava",
     "typecheck": "tsc --noEmit",
-    "verify": "npm run typecheck && npm run format-verify && npm run lint && npm run test"
+    "verify": "npm run typecheck && npm run format-verify && npm run lint"
   },
   "devDependencies": {
-    "ava": "^2.1.0",
     "gts": "^1.0.0",
     "prettier": "^1.18.2",
     "typescript": "~3.4.0"
@@ -38,22 +35,5 @@
   "engines": {
     "node": ">=8.9.0",
     "npm": ">=6"
-  },
-  "ava": {
-    "babel": false,
-    "compileEnhancements": false,
-    "extensions": [
-      "ts",
-      "tsx"
-    ],
-    "files": [
-      "src/**/*.test.{js,jsx,ts,tsx}"
-    ],
-    "require": [
-      "ts-node/register/transpile-only"
-    ],
-    "sources": [
-      "src/**/*.{js,jsx,ts,tsx}"
-    ]
   }
 }
