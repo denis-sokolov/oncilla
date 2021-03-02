@@ -1,14 +1,5 @@
 {
   "name": "",
-  "version": "0.0.0",
-  "description": "",
-  "main": "build/src/index.js",
-  "types": "build/src/index.d.ts",
-  "files": [
-    "build/src"
-  ],
-  "license": "Apache-2.0",
-  "keywords": [],
   "scripts": {
     "start-server": "ts-node -T src/server.ts",
     "build": "rm -rf dist && NODE_ENV=production tsc",
