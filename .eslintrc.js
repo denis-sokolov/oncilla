@@ -8,6 +8,8 @@ module.exports = {
   ignorePatterns: ["dist"],
   plugins: ["@theorem"],
   rules: {
+    // Samples use a lot of imports from inside oncilla
+    "@theorem/no-imports-down": "off",
     "@typescript-eslint/prefer-optional-chain": "off",
     "react-hooks/exhaustive-deps": "off",
   },
