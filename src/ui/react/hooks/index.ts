@@ -1,30 +1,18 @@
 import type { DebugConfig, FullDB } from "../../../core";
 import type { ReactType } from "../types";
+import type {
+  Changer,
+  MassUpdater,
+  MassUpdaterInternal,
+  Updater,
+  UpdaterInternal,
+} from "./types";
+
+export type { MassUpdater, Updater } from "./types";
 
 function flat<T>(list: T[][]): T[] {
   return list.reduce((a, b) => a.concat(b));
 }
-
-type MassUpdaterInternal<Domain, K extends keyof Domain> = (
-  options: {},
-  kind: K,
-  id: string,
-  delta: (prev: Domain[K]) => Domain[K]
-) => void;
-export type MassUpdater<Domain, K extends keyof Domain> = MassUpdaterInternal<
-  Domain,
-  K
-> & {
-  (kind: K, id: string, delta: (prev: Domain[K]) => Domain[K]): void;
-};
-
-type UpdaterInternal<T> = (options: {}, delta: (prev: T) => T) => void;
-export type Updater<T> = UpdaterInternal<T> & {
-  (delta: (prev: T) => T): void;
-} & (T extends {}
-    ? { <K extends keyof T & string>(field: K, value: T[K]): void }
-    : {});
-type Changer<T> = [T | "loading", Updater<T>];
 
 function makeMassUpdater<Domain, K extends keyof Domain>(
   db: FullDB<Domain>
