@@ -6,8 +6,8 @@ export function makeThrottled<Keys extends number | string | symbol>(
   const schedules = makeKindIdStore<
     Keys,
     {
-      debounceTimer?: NodeJS.Timeout;
-      maxTimer?: NodeJS.Timeout;
+      debounceTimer?: ReturnType<typeof setTimeout>;
+      maxTimer?: ReturnType<typeof setTimeout>;
     }
   >({});
 
