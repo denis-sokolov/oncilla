@@ -1,3 +1,7 @@
+# 6.0.0
+
+- Remove SemiControlledInput, consider instead: https://github.com/Theorem/react-tools/blob/master/docs/reference.md#useinputwithdraftstate
+
 # 5.5.0
 
 - Support IE11 syntactically
