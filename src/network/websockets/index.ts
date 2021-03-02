@@ -18,8 +18,8 @@ export function makeWsProtocolAdapter(
   const serialization = params.serialization || jsonSerialization;
   const socket = _socket || new ReconnectingWebSocket(url);
 
-  let pingTimer: NodeJS.Timer;
-  let timeoutTimer: NodeJS.Timer;
+  let pingTimer: ReturnType<typeof setTimeout>;
+  let timeoutTimer: ReturnType<typeof setTimeout>;
   function restartPingMachine() {
     clearTimeout(pingTimer);
     clearTimeout(timeoutTimer);
